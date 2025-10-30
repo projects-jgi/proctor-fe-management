@@ -1,8 +1,11 @@
+import HeroBanner from '@/components/HeroBanner'
 import React from 'react'
 
 function page() {
     return (
-        <div>page</div>
+        <>
+            <HeroBanner title='Faculty Dashboard' description='Welcome back! Manage your teaching activities' />
+        </>
     )
 }
 
