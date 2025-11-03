@@ -21,8 +21,12 @@ function Login() {
         setIsLoading(true)
         try{
             const res = await login(values)
-            router.push("/faculty/dashboard")
-            setLoginError("")
+            if(res.status){
+                router.push("/faculty/dashboard")
+                setLoginError("")
+            }else{
+                setLoginError(res.message)
+            }
         }catch(err){
             let err_message = "Unable to login. Please try again!"
             if(err instanceof Error){
