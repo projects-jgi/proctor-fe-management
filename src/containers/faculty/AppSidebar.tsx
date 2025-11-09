@@ -62,7 +62,7 @@ function AppSidebar() {
                                     const Icon = item.icon;
                                     return (
                                         <SidebarMenuItem key={item.title}>
-                                            <SidebarMenuButton asChild isActive={item.url == pathname.toLocaleLowerCase()}>
+                                            <SidebarMenuButton asChild isActive={pathname.toLocaleLowerCase().startsWith(item.url.toLocaleLowerCase())}>
                                                 <Link href={item.url} className='h-max'>
                                                     <div className="flex gap-4 items-center">
                                                         <div>

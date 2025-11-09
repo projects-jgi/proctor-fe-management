@@ -21,3 +21,18 @@ export type StudentUser = {
     name: string,
     email: string
 }
+
+export type StudentExamAttemppt = {
+    id: number,
+    student_id: number,
+    exam_id: number,
+    started_at: string,
+    ended_at: string
+}
+
+export type StudentExamAttemptViolation = {
+    id: number,
+    student_exam_attempt_id: number,
+    description: string,
+    reference_url?: string
+}
