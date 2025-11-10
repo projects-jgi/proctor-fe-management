@@ -36,3 +36,10 @@ export type StudentExamAttemptViolation = {
     description: string,
     reference_url?: string
 }
+
+export type Faculty = {
+    id: number,
+    name: string,
+    department_id: number,
+    email: string
+}

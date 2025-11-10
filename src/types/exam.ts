@@ -17,3 +17,12 @@ export type Department = {
     school_id: number,
     name: string
 }
+
+export type ExamType = {
+    id: number,
+    name: string,
+    description?: string,
+    is_private: boolean,
+    created_at: string,
+    created_by_faculty: number
+}

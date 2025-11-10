@@ -57,3 +57,47 @@ export async function get_exam_violations({ exam_id }: { exam_id: number }){
         }
     }
 }
+
+export async function get_exam_types(){
+    try{
+        const response = await Request({
+            url: process.env.BACKEND_HOST + `/api/faculty/exam-types`,
+            isAuthorized: true,
+        });
+
+        return {
+            status: true,
+            data: response.data.data
+        }
+    }catch(error: any){
+        return {
+            status: false,
+            message: error.response?.data?.message || "Unable to fetch exam types"
+        }
+    }
+}
+
+export async function create_exam_type({ name, description, is_private }: { name: string, description?: string | undefined, is_private?: boolean | undefined }){
+    try{
+        const response = await Request({
+            url: process.env.BACKEND_HOST + `/api/faculty/exam-types`,
+            method: 'POST',
+            isAuthorized: true,
+            body: {
+                name,
+                description,
+                is_private
+            }
+        });
+
+        return {
+            status: true,
+            data: response.data.data
+        }
+    }catch(error: any){
+        return {
+            status: false,
+            message: error.response?.data?.message || "Unable to create exam type"
+        }
+    }
+}
