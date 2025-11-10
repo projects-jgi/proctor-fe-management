@@ -12,6 +12,7 @@ import Loading from '@/components/Loading';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 type ViolationResponse = StudentExamAttemppt & {
     violations: StudentExamAttemptViolation[],
@@ -56,8 +57,8 @@ function PageContainer({ exam_id }: { exam_id: number }) {
         <div className='my-8 space-y-4'>
             <Card className='text-card-foreground border-l-4 border-l-gradient-to-r bg-gradient-to-r from-purple-500 to-blue-500 dark:from-blue-950 dark:to-purple-950'>
                 <CardContent>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-8 text-sm">
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="flex items-center gap-4 md:gap-8 text-sm flex-wrap">
                             {refreshInterval ? (
                                 <Badge variant="success">
                                     <Wifi />
@@ -79,7 +80,7 @@ function PageContainer({ exam_id }: { exam_id: number }) {
                                 Last updated: {violations.dataUpdatedAt && new Date(Number(violations.dataUpdatedAt)).toLocaleTimeString()}
                             </p>
                         </div>
-                        <div className='flex items-center gap-8'>
+                        <div className='flex items-center gap-4 md:gap-8'>
                             <Select value={refreshInterval ? String(refreshInterval) : undefined} onValueChange={onRefreshIntervalChange} disabled={!refreshInterval}>
                                 <SelectTrigger className="bg-secondary">
                                     <SelectValue placeholder="select a time"></SelectValue>
@@ -118,33 +119,44 @@ function PageContainer({ exam_id }: { exam_id: number }) {
                     {violations.isError && <div className='text-center text-muted-foreground text-sm'>Error loading violations: {violations.error?.message}</div>}
                     {violations.data && violations.data.length === 0 && <div className='text-center text-muted-foreground text-sm'>No violations found for this exam.</div>}
 
+                    <Accordion type='multiple'>
                     {violations.data && violations.data.map((violation: ViolationResponse, index: number) => (
-                        <Card className='mb-4' key={index}>
-                            <CardHeader>
-                                <CardTitle>
-                                    <span className='me-2'>{violation.student_user.id} - {violation.student_user.name}</span>
-                                    <Badge variant={violation.ended_at ? "success" : "warning"}>{violation.ended_at ? 'Submitted' : "Ongoing"}</Badge>
-                                </CardTitle>
-                                <CardDescription>{violation.exam.name}</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                {violation.violations.map((violationDetail: StudentExamAttemptViolation, index: number) => (
-                                    <div className="flex justify-between items-start mb-4" key={index}>
-                                        <div className='flex items-center gap-4'>
-                                            <TriangleAlert size={20} className='text-destructive' />
-                                            <div>
-                                                <p className='text-sm'>{violationDetail.description}</p>
-                                                <p className='text-xs text-muted-foreground underline'>
-                                                    <a href={violationDetail.reference_url} target='_blank'>{violationDetail.reference_url}</a>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <Badge>High</Badge>
-                                    </div>
-                                ))}
-                            </CardContent>
-                        </Card>
+                        <>
+                            <AccordionItem value={`violation-${index}`} key={index}>
+                                <Card className='mb-4' key={index}>
+                                    <CardHeader>
+                                        <AccordionTrigger>
+                                            <CardTitle>
+                                                    <span className='me-2'>{violation.student_user.id} - {violation.student_user.name}</span>
+                                                    <Badge variant="destructive" className='me-2'>{violation.violations.length}</Badge>
+                                                    <Badge variant={violation.ended_at ? "success" : "warning"}>{violation.ended_at ? 'Submitted' : "Ongoing"}</Badge>
+                                            </CardTitle>
+                                        </AccordionTrigger>
+                                        <CardDescription>{violation.exam.name}</CardDescription>
+                                    </CardHeader>
+                                    <AccordionContent>
+                                        <CardContent>
+                                            {violation.violations.map((violationDetail: StudentExamAttemptViolation, index: number) => (
+                                                <div className="flex justify-between items-start mb-4" key={index}>
+                                                    <div className='flex items-center gap-4'>
+                                                        <TriangleAlert size={20} className='text-destructive' />
+                                                        <div>
+                                                            <p className='text-sm'>{violationDetail.description}</p>
+                                                            <p className='text-xs text-muted-foreground underline'>
+                                                                <a href={violationDetail.reference_url} target='_blank'>{violationDetail.reference_url}</a>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <Badge>High</Badge>
+                                                </div>
+                                            ))}
+                                        </CardContent>
+                                    </AccordionContent>
+                                </Card>
+                            </AccordionItem>
+                        </>
                     ))}
+                    </Accordion>
                 </CardContent>
             </Card>
         </div>

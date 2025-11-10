@@ -22,7 +22,7 @@ function PageContainer() {
                     </Button>
                 </div>
                 {
-                    Array(5).fill().map((_, index) => (
+                    Array(5).fill(0).map((_, index) => (
                         <Card className='mt-4'>
                             <CardHeader>
                                 <div className="flex gap-2 items-center">
