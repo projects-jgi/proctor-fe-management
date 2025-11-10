@@ -1,7 +1,7 @@
 'use client';
 
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
-import { FileText, HelpCircle, LayoutDashboard, Shield, TrendingUp } from 'lucide-react';
+import { FileText, HelpCircle, LayoutDashboard, Shield, Tag, TrendingUp } from 'lucide-react';
 import Link from 'next/link'
 import { usePathname } from 'next/navigation';
 import React from 'react'
@@ -12,6 +12,12 @@ const data = [
         url: "/faculty/dashboard",
         icon: LayoutDashboard,
         description: "Overview and quick actions"
+    },
+    {
+        title: "Exam Types",
+        url: "/faculty/exam-types",
+        icon: Tag,
+        description: "Manage exam types"
     },
     {
         title: "Question Bank",
