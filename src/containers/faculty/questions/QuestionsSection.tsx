@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Plus } from 'lucide-react'
 import React from 'react'
+import BulkUpload from './BulkUpload'
 
 function QuestionsSection() {
     return (
@@ -41,10 +42,7 @@ function QuestionsSection() {
             <TabsContent value="verbal">
                 <div className="w-full">
                     <div className="flex justify-end gap-2 mb-4">
-                        <Button variant="outline">
-                            <Plus />
-                            <span>Bulk Upload</span>
-                        </Button>
+                        <BulkUpload />
                         <Button variant={'outline'}>
                             <Plus />
                             <span>Add Exam Type</span>
