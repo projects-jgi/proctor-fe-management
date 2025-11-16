@@ -120,7 +120,7 @@ export async function get_exam_type_questions({
   try {
     const response = await Request({
       url:
-        process.env.BACKEND_HOST + `/api/exam/types/${exam_type_id}/questions`,
+        process.env.BACKEND_HOST + `/api/exams/types/${exam_type_id}/questions`,
     });
 
     return {
@@ -175,6 +175,32 @@ export async function create_exam_type_mapping(exam_id: number, body: object) {
       status: false,
       message:
         error.response?.data?.message || "Unable to create exam type mapping",
+    };
+  }
+}
+
+export async function upload_exam_questions(exam_type_id: number, file: File) {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await Request({
+      url:
+        process.env.BACKEND_HOST + `/api/exams/types/${exam_type_id}/questions`,
+      method: "POST",
+      isAuthorized: true,
+      body: formData,
+    });
+
+    return {
+      status: true,
+      data: response.data.data,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message:
+        error.response?.data?.message || "Unable to upload exam questions",
     };
   }
 }

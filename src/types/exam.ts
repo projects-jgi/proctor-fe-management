@@ -27,3 +27,25 @@ export type ExamType = {
   created_at: string;
   created_by_faculty: number;
 };
+
+export type ExamQuestion = {
+  id: number;
+  exam_type_id: number;
+  question_text: string;
+  score: number;
+  option_1?: string;
+  option_2?: string;
+  option_3?: string;
+  option_4?: string;
+  option_5?: string;
+  is_correct_1?: number;
+  is_correct_2?: number;
+  is_correct_3?: number;
+  is_correct_4?: number;
+  is_correct_5?: number;
+  explanation_1?: string;
+  explanation_2?: string;
+  explanation_3?: string;
+  explanation_4?: string;
+  explanation_5?: string;
+};

@@ -1,83 +1,51 @@
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus } from 'lucide-react'
-import React from 'react'
-import BulkUpload from './BulkUpload'
+import { Button } from "@/components/ui/button";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import BulkUpload from "./BulkUpload";
+import { useQuery } from "@tanstack/react-query";
+import { get_exam_types } from "@/lib/server_api/faculty";
+import { ExamType } from "@/types/exam";
+import QuestionsList from "./QuestionsList";
 
 function QuestionsSection() {
-    return (
-        <Tabs defaultValue='all'>
-            <TabsList>
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="verbal">Verbal</TabsTrigger>
-            </TabsList>
-            <TabsContent value="all">
-                <div className="w-full">
-                    <Card>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>ID</TableHead>
-                                        <TableHead>Question Text</TableHead>
-                                        <TableHead>Score</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {Array(10).fill(0).map((_, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell className="font-medium">01</TableCell>
-                                            <TableCell>Lorem ipsum dolor sit amet consectetur adipisicing elit. Similique, reprehenderit.</TableCell>
-                                            <TableCell>10</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                </div>
-            </TabsContent>
-            <TabsContent value="verbal">
-                <div className="w-full">
-                    <div className="flex justify-end gap-2 mb-4">
-                        <BulkUpload />
-                        <Button variant={'outline'}>
-                            <Plus />
-                            <span>Add Exam Type</span>
-                        </Button>
-                        <Button>
-                            <Plus />
-                            <span>Create Question</span>
-                        </Button>
-                    </div>
-                    <Card>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>ID</TableHead>
-                                        <TableHead>Question Text</TableHead>
-                                        <TableHead>Score</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {Array(10).fill(0).map((_, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell className="font-medium">01</TableCell>
-                                            <TableCell>Lorem ipsum dolor sit amet consectetur adipisicing elit. Similique, reprehenderit.</TableCell>
-                                            <TableCell>10</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                </div>
-            </TabsContent>
-        </Tabs>
-    )
+  const [currentTab, setCurrentTab] = useState<number | null>(null);
+
+  const exam_types = useQuery({
+    queryKey: ["faculty", "exam_types"],
+    queryFn: async () => {
+      const response = await get_exam_types();
+      if (response.status) {
+        return response.data;
+      } else {
+        throw new Error(response.message);
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (exam_types.data && exam_types.data.length > 0) {
+      setCurrentTab(exam_types.data[0].id);
+      console.log(exam_types.data[0].id);
+    }
+  }, [exam_types.data]);
+  return (
+    <Tabs defaultValue="all" value={currentTab?.toString() || "all"}>
+      <TabsList>
+        {exam_types.data?.map((type: ExamType) => (
+          <TabsTrigger
+            onClick={() => setCurrentTab(type.id)}
+            value={type.id.toString()}
+            key={type.id}
+          >
+            {type.name}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+      {currentTab && <QuestionsList exam_type_id={currentTab} />}
+    </Tabs>
+  );
 }
 
-export default QuestionsSection
+export default QuestionsSection;
