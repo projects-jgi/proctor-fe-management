@@ -31,7 +31,10 @@ import {
   MultiSelectValue,
 } from "@/components/ui/multi-select";
 import { Textarea } from "@/components/ui/textarea";
-import { create_exam } from "@/lib/server_api/faculty";
+import {
+  create_exam,
+  create_exam_type_mapping,
+} from "@/lib/server_api/faculty";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Percent } from "lucide-react";
 import { useState } from "react";
@@ -41,10 +44,9 @@ import { z } from "zod";
 
 const examSchema = z.object({
   name: z.string().min(1, "Exam title is required"),
-  // department_id: z.number(),
   // TODO: Add descrption to migration
   description: z.string().min(1, "Description is required"),
-  exam_types: z.enum(["verbal", "logical", "qt"]).array().optional(),
+  exam_types: z.enum(["1", "2", "3"]).array().optional(),
   duration_in_minutes: z.coerce
     .number()
     .min(1, "Duration must be at least 1 minute"),
@@ -74,7 +76,6 @@ export default function FormCard() {
 
   async function onSubmit(data: z.infer<typeof examSchema>) {
     console.log(data);
-    data.department_id = 1;
     if (examTypeValues.length == 0) {
       console.log("Exam Types: ", examTypeValues);
       form.setError("exam_types", {
@@ -83,8 +84,30 @@ export default function FormCard() {
       return;
     }
 
+    const exam_type_mappings = [];
+
+    for (const types of data.exam_types || []) {
+      // TODO: Replace hardcoded limit_questions_to value
+      exam_type_mappings.push({
+        exam_type_id: Number(types),
+        limit_questions_to: 15,
+      });
+    }
+
     const response = await create_exam(data);
     if (response.status) {
+      const exam_id = response.data.id;
+
+      const mapping_response = await create_exam_type_mapping(exam_id, {
+        mappings: exam_type_mappings,
+      });
+
+      if (!mapping_response.status) {
+        toast.error(
+          mapping_response.message || "Unable to create exam type mappings"
+        );
+        return;
+      }
       toast.success("Exam created successfully");
       form.reset();
     } else {
@@ -175,13 +198,9 @@ export default function FormCard() {
                       </MultiSelectTrigger>
                       <MultiSelectContent>
                         <MultiSelectGroup>
-                          <MultiSelectItem value="verbal">
-                            Vebal
-                          </MultiSelectItem>
-                          <MultiSelectItem value="logical">
-                            Logical
-                          </MultiSelectItem>
-                          <MultiSelectItem value="qt">
+                          <MultiSelectItem value="1">Vebal</MultiSelectItem>
+                          <MultiSelectItem value="2">Logical</MultiSelectItem>
+                          <MultiSelectItem value="3">
                             Quantative
                           </MultiSelectItem>
                         </MultiSelectGroup>

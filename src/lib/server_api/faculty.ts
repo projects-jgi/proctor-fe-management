@@ -156,3 +156,25 @@ export async function create_exam(body: object) {
     };
   }
 }
+
+export async function create_exam_type_mapping(exam_id: number, body: object) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/exams/${exam_id}/mappings`,
+      method: "POST",
+      isAuthorized: true,
+      body: body,
+    });
+
+    return {
+      status: true,
+      data: response.data.data,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message:
+        error.response?.data?.message || "Unable to create exam type mapping",
+    };
+  }
+}
