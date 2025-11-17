@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -156,7 +157,7 @@ export default function FormCard({
       <form
         action=""
         onSubmit={form.handleSubmit(onSubmit)}
-        className="container my-8 space-y-6"
+        className="space-y-6"
       >
         <Card>
           <CardHeader>

@@ -224,3 +224,24 @@ export async function get_exam_details({ exam_id }: { exam_id: number }) {
     };
   }
 }
+
+export async function publish_exam({ exam_id }: { exam_id: number }) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/exams/${exam_id}/publish`,
+      method: "POST",
+      isAuthorized: true,
+    });
+
+    return {
+      status: true,
+      data: response.data.data,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unable to publish exam",
+    };
+  }
+}
