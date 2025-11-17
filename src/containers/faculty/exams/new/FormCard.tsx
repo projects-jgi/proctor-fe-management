@@ -37,7 +37,7 @@ import {
 } from "@/lib/server_api/faculty";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Percent } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -56,7 +56,9 @@ const examSchema = z.object({
   end_time: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Invalid end time",
   }),
-  max_violation: z.coerce.number().min(1, "Max violation must be at least 1"),
+  max_violation_count: z.coerce
+    .number()
+    .min(1, "Max violation must be at least 1"),
   passing_percentage: z.coerce.number().min(0).max(100),
   instructions: z.string().optional(),
   show_answers: z.boolean().default(false),
@@ -65,12 +67,43 @@ const examSchema = z.object({
   // TODO: Add max_attempt field
 });
 
-export default function FormCard() {
+function toLocalInputFormat(dateString: string) {
+  const date = new Date(dateString);
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+export default function FormCard({
+  defaultValues,
+}: {
+  defaultValues?: z.infer<typeof examSchema>;
+}) {
   const [examTypeValues, setExamTypeValues] = useState<string[]>([]);
+
+  useEffect(() => {
+    setExamTypeValues(
+      defaultValues?.exam_type_mappings.map((m) => String(m.exam_type_id))
+    );
+  }, []);
+
   const form = useForm({
     resolver: zodResolver(examSchema),
     defaultValues: {
-      name: "",
+      ...defaultValues,
+      exam_types: defaultValues?.exam_type_mappings
+        ? defaultValues.exam_type_mappings.map((m) => String(m.exam_type_id))
+        : [],
+      start_time: toLocalInputFormat(defaultValues?.start_time || ""),
+      end_time: toLocalInputFormat(defaultValues?.end_time || ""),
+      add_proctoring: defaultValues?.add_proctoring ? true : false,
+      show_answers: defaultValues?.show_answers ? true : false,
     },
   });
 
@@ -94,6 +127,9 @@ export default function FormCard() {
       });
     }
 
+    data.start_time = new Date(data.start_time).toISOString();
+    data.end_time = new Date(data.end_time).toISOString();
+
     const response = await create_exam(data);
     if (response.status) {
       const exam_id = response.data.id;
@@ -108,7 +144,7 @@ export default function FormCard() {
         );
         return;
       }
-      toast.success("Exam created successfully");
+      toast.success(response.message || "Exam created successfully");
       form.reset();
     } else {
       toast.error(response.message || "Unable to create exam");
@@ -188,6 +224,7 @@ export default function FormCard() {
                     </FieldLabel>
                     <MultiSelect
                       {...field}
+                      values={examTypeValues}
                       onValuesChange={(values) => {
                         setExamTypeValues(values);
                         field.onChange(values);
@@ -296,7 +333,7 @@ export default function FormCard() {
               />
               <Controller
                 control={form.control}
-                name="max_violation"
+                name="max_violation_count"
                 render={({ field, fieldState }) => (
                   <Field
                     data-invalid={fieldState.invalid}
@@ -304,13 +341,13 @@ export default function FormCard() {
                   >
                     <FieldLabel
                       aria-invalid={fieldState.invalid}
-                      htmlFor="max_violation"
+                      htmlFor="max_violation_count"
                     >
                       Max Violation *
                     </FieldLabel>
                     <Input
                       aria-invalid={fieldState.invalid}
-                      id="max_violation"
+                      id="max_violation_count"
                       type="number"
                       {...field}
                     />

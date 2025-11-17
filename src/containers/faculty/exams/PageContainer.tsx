@@ -101,9 +101,11 @@ function PageContainer() {
                   </p>
                   <div className="flex gap-2 items-center">
                     {exam.status == 0 && (
-                      <Button variant="outline">
-                        <Edit />
-                      </Button>
+                      <Link href={`/faculty/exams/update/${exam.id}`}>
+                        <Button variant="outline">
+                          <Edit />
+                        </Button>
+                      </Link>
                     )}
                     <DeleteExam />
                   </div>
