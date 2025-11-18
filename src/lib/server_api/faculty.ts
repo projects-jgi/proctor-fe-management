@@ -245,3 +245,46 @@ export async function publish_exam({ exam_id }: { exam_id: number }) {
     };
   }
 }
+
+export async function get_department_students() {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/faculty/students`,
+      isAuthorized: true,
+    });
+
+    return {
+      status: true,
+      data: response.data.data,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unable to fetch students",
+    };
+  }
+}
+
+export async function upload_department_students(file: File) {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/faculty/students/upload`,
+      isAuthorized: true,
+      method: "POST",
+      body: formData,
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unable to upload students",
+    };
+  }
+}
