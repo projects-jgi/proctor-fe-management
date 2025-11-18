@@ -52,4 +52,22 @@ export const columns: ColumnDef<Student>[] = [
     accessorKey: "email",
     header: "Email",
   },
+  {
+    accessorKey: "created_at",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Created At
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ getValue }) => {
+      const date = new Date(getValue() as string);
+      return date.toLocaleString();
+    },
+  },
 ];
