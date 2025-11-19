@@ -35,8 +35,11 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   create_exam,
   create_exam_type_mapping,
+  get_exam_types,
 } from "@/lib/server_api/faculty";
+import { ExamType } from "@/types/exam";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { Percent } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -47,7 +50,7 @@ const examSchema = z.object({
   name: z.string().min(1, "Exam title is required"),
   // TODO: Add descrption to migration
   description: z.string().min(1, "Description is required"),
-  exam_types: z.enum(["1", "2", "3"]).array().optional(),
+  exam_types: z.array(z.string()).optional(),
   duration_in_minutes: z.coerce
     .number()
     .min(1, "Duration must be at least 1 minute"),
@@ -88,6 +91,18 @@ export default function FormCard({
 }) {
   const [examTypeValues, setExamTypeValues] = useState<string[]>([]);
 
+  const examTypes = useQuery<{ [key: string]: ExamType[] }>({
+    queryKey: ["faculty", "exam-types"],
+    queryFn: async () => {
+      const response = await get_exam_types();
+      if (response.status) {
+        return response.data;
+      } else {
+        throw new Error(response.message);
+      }
+    },
+  });
+
   useEffect(() => {
     setExamTypeValues(
       defaultValues?.exam_type_mappings.map((m) => String(m.exam_type_id))
@@ -110,7 +125,8 @@ export default function FormCard({
 
   async function onSubmit(data: z.infer<typeof examSchema>) {
     console.log(data);
-    if (examTypeValues.length == 0) {
+
+    if (!examTypeValues || examTypeValues.length == 0) {
       console.log("Exam Types: ", examTypeValues);
       form.setError("exam_types", {
         message: "Please select at least one exam type",
@@ -236,11 +252,17 @@ export default function FormCard({
                       </MultiSelectTrigger>
                       <MultiSelectContent>
                         <MultiSelectGroup>
-                          <MultiSelectItem value="1">Vebal</MultiSelectItem>
-                          <MultiSelectItem value="2">Logical</MultiSelectItem>
-                          <MultiSelectItem value="3">
-                            Quantative
-                          </MultiSelectItem>
+                          {examTypes.data &&
+                            Object.values(examTypes.data)
+                              .flat()
+                              .map((type: ExamType) => (
+                                <MultiSelectItem
+                                  key={type.id}
+                                  value={String(type.id)}
+                                >
+                                  {type.name}
+                                </MultiSelectItem>
+                              ))}
                         </MultiSelectGroup>
                       </MultiSelectContent>
                     </MultiSelect>
