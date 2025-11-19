@@ -288,3 +288,34 @@ export async function upload_department_students(file: File) {
     };
   }
 }
+
+export async function map_students_to_exam({
+  exam_id,
+  student_mappings,
+}: {
+  exam_id: number;
+  student_mappings: object;
+}) {
+  const data = {
+    mappings: student_mappings,
+  };
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/faculty/exams/${exam_id}/students`,
+      method: "POST",
+      isAuthorized: true,
+      body: data,
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message:
+        error.response?.data?.message || "Unable to map students to exam",
+    };
+  }
+}

@@ -1,10 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { DataTableColumnHeader } from "@/components/datatable/DataTableColumnHeader";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StudentUser } from "@/types/users";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
 
 export const columns: ColumnDef<StudentUser>[] = [
   {
@@ -19,29 +18,22 @@ export const columns: ColumnDef<StudentUser>[] = [
         aria-label="Select All"
       />
     ),
-    cell: ({ row }) => (
+    cell: ({ row, getValue }) => (
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
+        value={String(getValue())}
       />
     ),
-    // enableSorting: false,
+    enableSorting: false,
     enableHiding: false,
   },
   {
     accessorKey: "name",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Name" />
+    ),
   },
   {
     accessorKey: "email",
@@ -49,17 +41,9 @@ export const columns: ColumnDef<StudentUser>[] = [
   },
   {
     accessorKey: "created_at",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Created At
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Crreated At" />
+    ),
     cell: ({ getValue }) => {
       const date = new Date(getValue() as string);
       return date.toLocaleString();

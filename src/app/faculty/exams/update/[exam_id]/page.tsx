@@ -1,7 +1,10 @@
 import HeroBanner from "@/components/HeroBanner";
+import { Button } from "@/components/ui/button";
 import FormCard from "@/containers/faculty/exams/new/FormCard";
 import PublishDialog from "@/containers/faculty/exams/new/PublishDialog";
 import { get_exam_details } from "@/lib/server_api/faculty";
+import { Users } from "lucide-react";
+import Link from "next/link";
 
 type Params = {
   exam_id: string;
@@ -23,7 +26,15 @@ export default async function Page({ params }: { params: Params }) {
       <div className="container my-8 space-y-6">
         <div className="flex justify-end">
           {exam_details.data.status == 0 && (
-            <PublishDialog exam_id={parseInt(exam_id)} />
+            <div className="flex items-center gap-4">
+              <Link href={`${exam_id}/students`}>
+                <Button variant="outline">
+                  <Users />
+                  Manage Students
+                </Button>
+              </Link>
+              <PublishDialog exam_id={parseInt(exam_id)} />
+            </div>
           )}
         </div>
         <FormCard defaultValues={exam_details.data} />

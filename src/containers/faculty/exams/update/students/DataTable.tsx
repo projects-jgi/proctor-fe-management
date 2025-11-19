@@ -22,20 +22,23 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  rowSelection: Record<string, boolean>;
+  setRowSelection: Dispatch<SetStateAction<Record<string, boolean>>>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  rowSelection,
+  setRowSelection,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [rowSelection, setRowSelection] = useState({});
 
   const table = useReactTable({
     data,
@@ -47,6 +50,7 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
+    getRowId: (row) => (row as any).id,
     state: {
       sorting,
       columnFilters,

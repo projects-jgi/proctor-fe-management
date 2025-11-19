@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { publish_exam } from "@/lib/server_api/faculty";
+import { Globe } from "lucide-react";
 import { toast } from "sonner";
 
 export default function PublishDialog({ exam_id }: { exam_id: number }) {
@@ -27,7 +28,10 @@ export default function PublishDialog({ exam_id }: { exam_id: number }) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="default">Publish Exam</Button>
+        <Button variant="default">
+          <Globe />
+          Publish Exam
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
