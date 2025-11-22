@@ -112,6 +112,30 @@ export async function create_exam_type({
   }
 }
 
+export async function delete_exam_type({
+  exam_type_id,
+}: {
+  exam_type_id: number;
+}) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/faculty/exam-types/${exam_type_id}`,
+      method: "DELETE",
+      isAuthorized: true,
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unable to delete exam type",
+    };
+  }
+}
+
 export async function get_exam_type_questions({
   exam_type_id,
 }: {

@@ -71,7 +71,7 @@ function PageContainer() {
                   <CardAction>
                     <div className="flex items-center gap-2">
                       <UpdateType defaultValues={type} />
-                      <DeleteType />
+                      <DeleteType exam_type_id={type.id} />
                     </div>
                   </CardAction>
                   <CardDescription>
