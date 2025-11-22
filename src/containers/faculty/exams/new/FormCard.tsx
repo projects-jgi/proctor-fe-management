@@ -45,6 +45,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { fi } from "zod/v4/locales";
 
 const examSchema = z.object({
   name: z.string().min(1, "Exam title is required"),
@@ -64,8 +65,8 @@ const examSchema = z.object({
     .min(1, "Max violation must be at least 1"),
   passing_percentage: z.coerce.number().min(0).max(100),
   instructions: z.string().optional(),
-  show_answers: z.boolean().default(false),
-  add_proctoring: z.boolean().default(true),
+  show_answers: z.coerce.boolean().default(true),
+  is_proctored: z.boolean().default(true),
   // TODO: Add max_attempt field
 });
 
@@ -116,8 +117,8 @@ export default function FormCard({
         : [],
       start_time: toLocalInputFormat(defaultValues?.start_time || ""),
       end_time: toLocalInputFormat(defaultValues?.end_time || ""),
-      add_proctoring: defaultValues?.add_proctoring ? true : false,
-      show_answers: defaultValues?.show_answers ? true : false,
+      is_proctored: defaultValues ? Boolean(defaultValues.is_proctored) : true,
+      show_answers: defaultValues ? Boolean(defaultValues.show_answers) : true,
     },
   });
 
@@ -217,9 +218,12 @@ export default function FormCard({
                       id="description"
                       placeholder="Brief description of the exam"
                       rows={3}
-                      {...field}
+                      onChange={field.onChange}
                       aria-invalid={fieldState.invalid}
-                    />
+                      value={field.value}
+                    >
+                      {/* {field.value} */}
+                    </Textarea>
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
@@ -428,8 +432,10 @@ export default function FormCard({
                       placeholder="Exam instructions for students"
                       rows={4}
                       aria-invalid={fieldState.invalid}
-                      {...field}
-                    />
+                      onChange={field.onChange}
+                    >
+                      {field.value}
+                    </Textarea>
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
@@ -455,7 +461,7 @@ export default function FormCard({
                       className="hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-3 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950"
                     >
                       <Checkbox
-                        id="toggle-2"
+                        defaultChecked={true}
                         className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
                         checked={field.value}
                         onCheckedChange={field.onChange}
@@ -477,7 +483,7 @@ export default function FormCard({
               />
               <Controller
                 control={form.control}
-                name="add_proctoring"
+                name="is_proctored"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel
@@ -485,8 +491,7 @@ export default function FormCard({
                       className="hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-3 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950"
                     >
                       <Checkbox
-                        id="toggle-2"
-                        defaultChecked
+                        defaultChecked={true}
                         checked={field.value}
                         onCheckedChange={field.onChange}
                         className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"

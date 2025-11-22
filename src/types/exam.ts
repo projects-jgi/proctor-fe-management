@@ -2,6 +2,7 @@ export type Exam = {
   id: number;
   department_id: number;
   name: string;
+  description: string;
   start_time: string;
   end_time: string;
   duration_in_minutes: number;
@@ -9,6 +10,7 @@ export type Exam = {
   max_attempts: number;
   status: number;
   show_answers: number;
+  is_proctored: number;
   max_violations_count: number;
   created_at: string;
 };
