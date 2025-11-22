@@ -18,12 +18,17 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { ExamQuestion } from "@/types/exam";
 import Link from "next/link";
+import { DataTable } from "./datatable/Datatable";
+import { ExamQuestionColumns } from "./datatable/ExamQuestionColumns";
+import { useState } from "react";
 
 export default function QuestionsList({
   exam_type_id,
 }: {
   exam_type_id: number;
 }) {
+  const [rowSelection, setRowSelection] = useState({});
+
   const questions = useQuery({
     queryKey: ["faculty", "exam_types", exam_type_id, "questions"],
     queryFn: async () => {
@@ -63,36 +68,12 @@ export default function QuestionsList({
         </div>
         <Card>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Question</TableHead>
-                  <TableHead>Score</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {questions.data.length == 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={3}
-                      className="text-center text-muted-foreground"
-                    >
-                      No questions found.
-                    </TableCell>
-                  </TableRow>
-                )}
-                {questions.data.map((question: ExamQuestion, index: number) => (
-                  <TableRow key={index}>
-                    <TableCell>{question.id}</TableCell>
-                    <TableCell className="whitespace-normal">
-                      {question.question_text}
-                    </TableCell>
-                    <TableCell>{question.score}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <DataTable
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              columns={ExamQuestionColumns}
+              data={questions.data}
+            />
           </CardContent>
         </Card>
       </div>

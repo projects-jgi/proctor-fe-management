@@ -12,7 +12,7 @@ import QuestionsList from "./QuestionsList";
 function QuestionsSection() {
   const [currentTab, setCurrentTab] = useState<number | null>(null);
 
-  const exam_types = useQuery({
+  const exam_types = useQuery<Record<string, ExamType[]>>({
     queryKey: ["faculty", "exam_types"],
     queryFn: async () => {
       const response = await get_exam_types();
@@ -25,23 +25,25 @@ function QuestionsSection() {
   });
 
   useEffect(() => {
-    if (exam_types.data && exam_types.data.length > 0) {
-      setCurrentTab(exam_types.data[0].id);
-      console.log(exam_types.data[0].id);
+    if (exam_types.data && Object.keys(exam_types.data).length > 0) {
+      const firstGroup = Object.values(exam_types.data)[0];
+      setCurrentTab(firstGroup.id);
     }
   }, [exam_types.data]);
+
   return (
-    <Tabs defaultValue="all" value={currentTab?.toString() || "all"}>
+    <Tabs value={currentTab?.toString()} className="w-full">
       <TabsList>
-        {exam_types.data?.map((type: ExamType) => (
-          <TabsTrigger
-            onClick={() => setCurrentTab(type.id)}
-            value={type.id.toString()}
-            key={type.id}
-          >
-            {type.name}
-          </TabsTrigger>
-        ))}
+        {exam_types.data &&
+          (Object.values(exam_types.data).flat() as ExamType[]).map((type) => (
+            <TabsTrigger
+              onClick={() => setCurrentTab(type.id)}
+              value={type.id.toString()}
+              key={type.id}
+            >
+              {type.name}
+            </TabsTrigger>
+          ))}
       </TabsList>
       {currentTab && <QuestionsList exam_type_id={currentTab} />}
     </Tabs>

@@ -1,18 +1,16 @@
-'use client';
+"use client";
 
-import React from 'react'
-import HeroStats from './HeroStats';
-import FilterSearch from './FilterSearch';
-import QuestionsSection from './QuestionsSection';
+import React from "react";
+import HeroStats from "./HeroStats";
+import QuestionsSection from "./QuestionsSection";
 
 function PageContainer() {
-    return (
-        <div className='my-8 space-y-4'>
-            <HeroStats />
-            <FilterSearch />
-            <QuestionsSection />
-        </div>
-    )
+  return (
+    <div className="my-8 space-y-4">
+      <HeroStats />
+      <QuestionsSection />
+    </div>
+  );
 }
 
-export default PageContainer
+export default PageContainer;
