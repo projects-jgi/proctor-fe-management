@@ -48,7 +48,6 @@ import { z } from "zod";
 
 const examSchema = z.object({
   name: z.string().min(1, "Exam title is required"),
-  // TODO: Add descrption to migration
   description: z.string().min(1, "Description is required"),
   exam_types: z.array(z.string()).optional(),
   duration_in_minutes: z.coerce
@@ -66,7 +65,6 @@ const examSchema = z.object({
   passing_percentage: z.coerce.number().min(0).max(100),
   instructions: z.string().optional(),
   show_answers: z.boolean().default(false),
-  // TODO: Add proctoring to migration
   add_proctoring: z.boolean().default(true),
   // TODO: Add max_attempt field
 });

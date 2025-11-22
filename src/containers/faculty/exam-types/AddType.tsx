@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Dialog,
@@ -9,18 +9,25 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Plus } from 'lucide-react'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Plus } from "lucide-react";
 
 import React from "react";
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import {z} from "zod";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { create_exam_type } from "@/lib/server_api/faculty";
 import { toast } from "sonner";
@@ -29,9 +36,9 @@ import Loading from "@/components/Loading";
 
 const addTypeSchema = z.object({
   name: z.string().min(1, "Exam type name is required"),
-  description: z.string().optional(),
-  is_private: z.boolean().optional()
-})
+  description: z.string().min(1, "Description is required"),
+  is_private: z.boolean().optional(),
+});
 
 function AddType() {
   const queryClient = useQueryClient();
@@ -39,47 +46,50 @@ function AddType() {
   const submitMutate = useMutation({
     mutationFn: async (values: z.infer<typeof addTypeSchema>) => {
       const response = await create_exam_type(values);
-      if(response.status){
+      if (response.status) {
         queryClient.invalidateQueries({
-          queryKey: ['faculty', 'exam-types']
+          queryKey: ["faculty", "exam-types"],
         });
         return response.data;
-      }else{
+      } else {
         throw new Error(response.message);
       }
     },
     onSuccess: (data) => {
-      toast.success("Exam type created successfully")
+      toast.success("Exam type created successfully");
     },
     onError: (error: any) => {
-      toast.error("Error: " + error)
-    }
-  })
+      toast.error("Error: " + error);
+    },
+  });
 
   const form = useForm<z.infer<typeof addTypeSchema>>({
     resolver: zodResolver(addTypeSchema),
     defaultValues: {
       name: "",
       description: "",
-      is_private: false
-    }
-  })
+      is_private: false,
+    },
+  });
 
-  async function handleSubmit(values: z.infer<typeof addTypeSchema>){
-    console.log(values)
-    submitMutate.mutate(values)
+  async function handleSubmit(values: z.infer<typeof addTypeSchema>) {
+    console.log(values);
+    submitMutate.mutate(values);
   }
 
   return (
     <Dialog>
       <Form {...form}>
-          <DialogTrigger asChild>
-            <Button variant="default">
-              <Plus /> Add Exam Type
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-        <form className="grid gap-4" onSubmit={form.handleSubmit(handleSubmit)}>
+        <DialogTrigger asChild>
+          <Button variant="default">
+            <Plus /> Add Exam Type
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <form
+            className="grid gap-4"
+            onSubmit={form.handleSubmit(handleSubmit)}
+          >
             <DialogHeader>
               <DialogTitle>Add Exam Type</DialogTitle>
               <DialogDescription>
@@ -93,7 +103,11 @@ function AddType() {
                 <FormItem>
                   <FormLabel htmlFor="name">Exam Type Name</FormLabel>
                   <FormControl>
-                    <Input id="name" {...field} placeholder="e.g., Verbal, Technical, Reasoning, etc" />
+                    <Input
+                      id="name"
+                      {...field}
+                      placeholder="e.g., Verbal, Technical, Reasoning, etc"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -102,11 +116,15 @@ function AddType() {
             <FormField
               control={form.control}
               name="description"
-              render={({ field}) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="description">Description</FormLabel>
                   <FormControl>
-                    <Textarea id="description" {...field} placeholder="Type your description here." />
+                    <Textarea
+                      id="description"
+                      {...field}
+                      placeholder="Type your description here."
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -117,13 +135,17 @@ function AddType() {
               render={({ field }) => (
                 <FormItem className="flex">
                   <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} id="is_private" />
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      id="is_private"
+                    />
                   </FormControl>
                   <FormLabel htmlFor="is_private">
                     <div>
                       Is Private
                       <p className="text-muted-foreground text-sm">
-                          If enabled, this exam type will only be visible to you.
+                        If enabled, this exam type will only be visible to you.
                       </p>
                     </div>
                   </FormLabel>
@@ -134,10 +156,12 @@ function AddType() {
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
-              <Button type="submit" disabled={submitMutate.isPending}>{submitMutate.isPending && <Loading />} Save changes</Button>
+              <Button type="submit" disabled={submitMutate.isPending}>
+                {submitMutate.isPending && <Loading />} Save changes
+              </Button>
             </DialogFooter>
           </form>
-          </DialogContent>
+        </DialogContent>
       </Form>
     </Dialog>
   );

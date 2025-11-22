@@ -25,7 +25,7 @@ type ExamTypeResponse = ExamType & {
 };
 
 function PageContainer() {
-  const types = useQuery({
+  const types = useQuery<Record<string, ExamTypeResponse[]>>({
     queryKey: ["faculty", "exam-types"],
     queryFn: async () => {
       const response = await get_exam_types();
@@ -54,8 +54,9 @@ function PageContainer() {
           <AddType />
         </div>
         {types.data &&
-          Object.values(types.data).map(
-            (type: ExamTypeResponse, index: number) => (
+          Object.values(types.data)
+            .flat()
+            .map((type: ExamTypeResponse, index: number) => (
               <Card key={index} className="mt-4">
                 <CardHeader className="gap-6">
                   <CardTitle>
@@ -69,7 +70,7 @@ function PageContainer() {
                   </CardTitle>
                   <CardAction>
                     <div className="flex items-center gap-2">
-                      <UpdateType />
+                      <UpdateType defaultValues={type} />
                       <DeleteType />
                     </div>
                   </CardAction>
@@ -91,8 +92,7 @@ function PageContainer() {
                   </CardDescription>
                 </CardHeader>
               </Card>
-            )
-          )}
+            ))}
       </section>
     </div>
   );
