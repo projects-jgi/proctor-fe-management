@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardAction,
@@ -11,9 +13,20 @@ import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import UploadStudents from "./UploadStudents";
 import { get_department_students } from "@/lib/server_api/faculty";
+import { useQuery } from "@tanstack/react-query";
 
-export default async function PageContainer() {
-  const data = await get_department_students();
+export default function PageContainer() {
+  const data = useQuery({
+    queryKey: ["faculty", "students"],
+    queryFn: async () => {
+      const response = await get_department_students();
+      if (response.status) {
+        return response.data;
+      } else {
+        return new Error(response.message);
+      }
+    },
+  });
 
   return (
     <div className="my-8 space-y-4">
@@ -26,7 +39,13 @@ export default async function PageContainer() {
             </CardAction>
           </CardHeader>
           <CardContent>
-            <DataTable columns={columns} data={data.data} />
+            {data.isLoading ? (
+              "Loading..."
+            ) : data.isError ? (
+              "Unable to load data"
+            ) : (
+              <DataTable columns={columns} data={data.data} />
+            )}
           </CardContent>
         </Card>
       </section>

@@ -46,6 +46,9 @@ function UploadStudents() {
   async function handleUpload(values: z.infer<typeof uploadForm>) {
     const response = await upload_department_students(values.file);
     if (response.status) {
+      query_client.invalidateQueries({
+        queryKey: ["faculty", "students"],
+      });
       toast.success("Students uploaded successfully");
     } else {
       toast.error("Failed to upload students: " + response.message);

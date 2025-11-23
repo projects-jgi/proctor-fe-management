@@ -63,7 +63,7 @@ export default function PageContainer({ exam_id }: { exam_id: number }) {
         <CardContent>
           {data.isLoading || data.isError ? (
             <div className="text-center">
-              {data.isLoading ? "Loading..." : "Failed to load students"}
+              {data.isLoading ? "Loading..." : data.error?.message}
             </div>
           ) : (
             <DataTable
