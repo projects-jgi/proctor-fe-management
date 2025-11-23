@@ -50,7 +50,7 @@ import { fi } from "zod/v4/locales";
 const examSchema = z.object({
   name: z.string().min(1, "Exam title is required"),
   description: z.string().min(1, "Description is required"),
-  exam_types: z.array(z.string()).optional(),
+  exam_type_mappings: z.array(z.string()).optional(),
   duration_in_minutes: z.coerce
     .number()
     .min(1, "Duration must be at least 1 minute"),
@@ -63,7 +63,10 @@ const examSchema = z.object({
   max_violation_count: z.coerce
     .number()
     .min(1, "Max violation must be at least 1"),
-  passing_percentage: z.coerce.number().min(0).max(100),
+  passing_percentage: z.coerce
+    .number()
+    .min(1, "Minimum passing percentage is 1")
+    .max(100, "Maximum passing percentage is 100"),
   instructions: z.string().optional(),
   show_answers: z.coerce.boolean().default(true),
   is_proctored: z.boolean().default(true),
@@ -88,7 +91,9 @@ export default function FormCard({
 }: {
   defaultValues?: z.infer<typeof examSchema>;
 }) {
-  const [examTypeValues, setExamTypeValues] = useState<string[]>([]);
+  const [examTypeValues, setExamTypeValues] = useState<string[] | undefined>(
+    []
+  );
 
   const examTypes = useQuery<{ [key: string]: ExamType[] }>({
     queryKey: ["faculty", "exam-types"],
@@ -104,7 +109,7 @@ export default function FormCard({
 
   useEffect(() => {
     setExamTypeValues(
-      defaultValues?.exam_type_mappings.map((m) => String(m.exam_type_id))
+      defaultValues?.exam_type_mappings?.map((m: any) => String(m.exam_type_id))
     );
   }, []);
 
@@ -112,8 +117,10 @@ export default function FormCard({
     resolver: zodResolver(examSchema),
     defaultValues: {
       ...defaultValues,
-      exam_types: defaultValues?.exam_type_mappings
-        ? defaultValues.exam_type_mappings.map((m) => String(m.exam_type_id))
+      exam_type_mappings: defaultValues?.exam_type_mappings
+        ? defaultValues.exam_type_mappings.map((m: any) =>
+            String(m.exam_type_id)
+          )
         : [],
       start_time: toLocalInputFormat(defaultValues?.start_time || ""),
       end_time: toLocalInputFormat(defaultValues?.end_time || ""),
@@ -127,7 +134,7 @@ export default function FormCard({
 
     if (!examTypeValues || examTypeValues.length == 0) {
       console.log("Exam Types: ", examTypeValues);
-      form.setError("exam_types", {
+      form.setError("exam_type_mappings", {
         message: "Please select at least one exam type",
       });
       return;
@@ -135,7 +142,7 @@ export default function FormCard({
 
     const exam_type_mappings = [];
 
-    for (const types of data.exam_types || []) {
+    for (const types of data.exam_type_mappings || []) {
       // TODO: Replace hardcoded limit_questions_to value
       exam_type_mappings.push({
         exam_type_id: Number(types),
@@ -232,11 +239,11 @@ export default function FormCard({
               />
               <Controller
                 control={form.control}
-                name="exam_types"
+                name="exam_type_mappings"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel
-                      htmlFor="exam_types"
+                      htmlFor="exam_type_mappings"
                       aria-invalid={fieldState.invalid}
                     >
                       Exam Type Mapping *
@@ -301,7 +308,8 @@ export default function FormCard({
                       id="duration_in_minutes"
                       type="number"
                       min="1"
-                      {...field}
+                      onChange={field.onChange}
+                      value={parseInt(field.value as string)}
                       aria-invalid={fieldState.invalid}
                     />
                     {fieldState.invalid && (
@@ -374,7 +382,8 @@ export default function FormCard({
                       aria-invalid={fieldState.invalid}
                       id="max_violation_count"
                       type="number"
-                      {...field}
+                      value={parseInt(field.value as string)}
+                      onChange={field.onChange}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -399,7 +408,8 @@ export default function FormCard({
                     <InputGroup>
                       <InputGroupInput
                         aria-invalid={fieldState.invalid}
-                        {...field}
+                        value={parseInt(field.value as string)}
+                        onChange={field.onChange}
                         id="passing_percentage"
                         type="number"
                       />
@@ -463,7 +473,7 @@ export default function FormCard({
                       <Checkbox
                         defaultChecked={true}
                         className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
-                        checked={field.value}
+                        checked={field.value ? true : false}
                         onCheckedChange={field.onChange}
                       />
                       <div className="grid gap-1.5 font-normal">

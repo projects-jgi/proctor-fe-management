@@ -26,8 +26,8 @@ function QuestionsSection() {
 
   useEffect(() => {
     if (exam_types.data && Object.keys(exam_types.data).length > 0) {
-      const firstGroup = Object.values(exam_types.data)[0];
-      setCurrentTab(firstGroup.id);
+      const firstGroup = Object.values(exam_types.data).flat();
+      setCurrentTab(firstGroup[0].id);
     }
   }, [exam_types.data]);
 
