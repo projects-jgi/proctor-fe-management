@@ -7,7 +7,7 @@ import QuestionsSection from "./QuestionsSection";
 function PageContainer() {
   return (
     <div className="my-8 space-y-4">
-      <HeroStats />
+      {/* <HeroStats /> */}
       <QuestionsSection />
     </div>
   );

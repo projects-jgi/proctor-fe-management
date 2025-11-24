@@ -34,7 +34,7 @@ function PageContainer() {
   });
   return (
     <div className="my-8 space-y-4">
-      <HeroStats />
+      {/* <HeroStats /> */}
       <section>
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Your Exams</h2>
@@ -69,9 +69,6 @@ function PageContainer() {
                   </CardDescription>
                 </div>
               </div>
-              <CardAction>
-                {exam.status == 0 && <Button variant="default">Publish</Button>}
-              </CardAction>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-8 items-start text-sm">

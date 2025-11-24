@@ -61,10 +61,10 @@ export default function QuestionsList({
               <span>Add Exam Type</span>
             </Button>
           </Link>
-          <Button>
+          {/* <Button>
             <Plus />
             <span>Create Question</span>
-          </Button>
+          </Button> */}
         </div>
         <Card>
           <CardContent>
