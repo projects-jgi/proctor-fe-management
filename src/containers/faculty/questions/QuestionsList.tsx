@@ -66,16 +66,14 @@ export default function QuestionsList({
             <span>Create Question</span>
           </Button> */}
         </div>
-        <Card>
-          <CardContent>
-            <DataTable
-              rowSelection={rowSelection}
-              setRowSelection={setRowSelection}
-              columns={ExamQuestionColumns}
-              data={questions.data}
-            />
-          </CardContent>
-        </Card>
+        <div className="border border-secondary rounded">
+          <DataTable
+            rowSelection={rowSelection}
+            setRowSelection={setRowSelection}
+            columns={ExamQuestionColumns}
+            data={questions.data}
+          />
+        </div>
       </div>
     </TabsContent>
   );

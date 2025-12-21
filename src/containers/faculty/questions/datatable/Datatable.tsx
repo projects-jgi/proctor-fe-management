@@ -59,8 +59,8 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div>
-      <div className="flex items-center py-4">
+    <div className="bg-card">
+      <div className="flex items-center p-2 border-b border-secondary">
         <Input
           placeholder="Filter Questions..."
           value={
@@ -72,9 +72,9 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
       </div>
-      <div className="overflow-hidden rounded-md border">
+      <div className="overflow-hidden rounded-md p-4">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-card text-card-foreground">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -92,7 +92,7 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow key={row.id} className="border-b border-secondary">
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
@@ -106,7 +106,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="mt-4">
+      <div className="p-2 border-t border-secondary">
         <DataTablePagination table={table} />
       </div>
     </div>

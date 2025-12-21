@@ -14,6 +14,7 @@ import { Upload } from "lucide-react";
 import UploadStudents from "./UploadStudents";
 import { get_department_students } from "@/lib/server_api/faculty";
 import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading";
 
 export default function PageContainer() {
   const data = useQuery({
@@ -31,23 +32,18 @@ export default function PageContainer() {
   return (
     <div className="my-8 space-y-4">
       <section>
-        <Card>
-          <CardHeader>
-            <CardTitle>Department Students</CardTitle>
-            <CardAction>
-              <UploadStudents />
-            </CardAction>
-          </CardHeader>
-          <CardContent>
-            {data.isLoading ? (
-              "Loading..."
-            ) : data.isError ? (
-              "Unable to load data"
-            ) : (
-              <DataTable columns={columns} data={data.data} />
-            )}
-          </CardContent>
-        </Card>
+        <div className="flex justify-end gap-2 mb-4">
+          <UploadStudents />
+        </div>
+        {data.isLoading ? (
+          <Loading />
+        ) : data.isError ? (
+          <div>Error loading data</div>
+        ) : (
+          <div className="border border-secondary rounded bg-card">
+            <DataTable columns={columns} data={data.data} />
+          </div>
+        )}
       </section>
     </div>
   );
