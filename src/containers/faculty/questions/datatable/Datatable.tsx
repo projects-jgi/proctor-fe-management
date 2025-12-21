@@ -98,21 +98,35 @@ export function DataTable<TData, TValue>({
                 ))}
               </TableHeader>
               <TableBody>
-                {table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} className="border-b border-secondary">
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        className="max-w-[200px] whitespace-normal"
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
+                {table.getRowModel().rows.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="text-center h-12"
+                    >
+                      No results found.
+                    </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      className="border-b border-secondary"
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell
+                          key={cell.id}
+                          className="max-w-[200px] whitespace-normal"
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>

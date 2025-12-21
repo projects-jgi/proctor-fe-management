@@ -57,6 +57,7 @@ function AddType() {
     },
     onSuccess: (data) => {
       toast.success("Exam type created successfully");
+      form.reset();
     },
     onError: (error: any) => {
       toast.error("Error: " + error);
