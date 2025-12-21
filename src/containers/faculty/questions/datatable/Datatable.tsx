@@ -2,6 +2,7 @@
 
 import { DataTablePagination } from "@/components/datatable/DataTablePagination";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -59,56 +60,67 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="bg-card">
-      <div className="flex items-center p-2 border-b border-secondary">
-        <Input
-          placeholder="Filter Questions..."
-          value={
-            (table.getColumn("question_text")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("question_text")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-      </div>
-      <div className="overflow-hidden rounded-md p-4">
-        <Table>
-          <TableHeader className="bg-card text-card-foreground">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
+    <Card>
+      <CardContent>
+        <div>
+          <div className="flex items-center justify-end mb-4">
+            <Input
+              placeholder="Filter Questions..."
+              value={
+                (table
+                  .getColumn("question_text")
+                  ?.getFilterValue() as string) ?? ""
+              }
+              onChange={(event) =>
+                table
+                  .getColumn("question_text")
+                  ?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm"
+            />
+          </div>
+          <div className="overflow-hidden rounded-md">
+            <Table>
+              <TableHeader className="bg-secondary">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} className="border-b border-secondary">
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        className="max-w-[200px] whitespace-normal"
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
                         )}
-                  </TableHead>
+                      </TableCell>
+                    ))}
+                  </TableRow>
                 ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} className="border-b border-secondary">
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className="max-w-[200px] whitespace-normal"
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="p-2 border-t border-secondary">
-        <DataTablePagination table={table} />
-      </div>
-    </div>
+              </TableBody>
+            </Table>
+          </div>
+          <div className="p-2 border-t border-secondary">
+            <DataTablePagination table={table} />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

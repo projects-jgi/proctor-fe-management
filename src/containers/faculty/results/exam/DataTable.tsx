@@ -92,7 +92,7 @@ export function DataTable<TData, TValue>({
         <div>
           <div className="overflow-hidden rounded-md">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-secondary">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
