@@ -51,30 +51,28 @@ export default function QuestionsList({
   }
 
   return (
-    <TabsContent value={exam_type_id.toString()}>
-      <div className="w-full">
-        <div className="flex justify-end gap-2 mb-4">
-          <BulkUpload exam_type_id={exam_type_id} />
-          <Link href="/faculty/exam-types">
-            <Button variant={"outline"}>
-              <Plus />
-              <span>Add Exam Type</span>
-            </Button>
-          </Link>
-          {/* <Button>
+    <div className="w-full">
+      <div className="flex justify-end gap-2 mb-4">
+        <BulkUpload exam_type_id={exam_type_id} />
+        <Link href="/faculty/exam-types">
+          <Button variant={"outline"}>
+            <Plus />
+            <span>Add Exam Type</span>
+          </Button>
+        </Link>
+        {/* <Button>
             <Plus />
             <span>Create Question</span>
           </Button> */}
-        </div>
-        <div className="border border-secondary rounded">
-          <DataTable
-            rowSelection={rowSelection}
-            setRowSelection={setRowSelection}
-            columns={ExamQuestionColumns}
-            data={questions.data}
-          />
-        </div>
       </div>
-    </TabsContent>
+      <div className="border border-secondary rounded">
+        <DataTable
+          rowSelection={rowSelection}
+          setRowSelection={setRowSelection}
+          columns={ExamQuestionColumns}
+          data={questions.data}
+        />
+      </div>
+    </div>
   );
 }

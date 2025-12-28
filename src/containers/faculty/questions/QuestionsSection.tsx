@@ -8,12 +8,18 @@ import { useQuery } from "@tanstack/react-query";
 import { get_exam_types } from "@/lib/server_api/faculty";
 import { ExamType } from "@/types/exam";
 import QuestionsList from "./QuestionsList";
+import { useSearchParams } from "next/navigation";
+import ExamTypeList from "./ExamTypeList";
+import { Faculty } from "@/types/users";
 
 function QuestionsSection() {
   const [currentTab, setCurrentTab] = useState<number | null>(null);
+  const search = useSearchParams();
 
-  const exam_types = useQuery<Record<string, ExamType[]>>({
-    queryKey: ["faculty", "exam_types"],
+  const exam_types = useQuery<
+    Record<string, (ExamType & { faculty: Faculty })[]>
+  >({
+    queryKey: ["faculty", "exam-types"],
     queryFn: async () => {
       const response = await get_exam_types();
       if (response.status) {
@@ -31,23 +37,15 @@ function QuestionsSection() {
     }
   }, [exam_types.data]);
 
-  return (
-    <Tabs value={currentTab?.toString()} className="w-full">
-      <TabsList>
-        {exam_types.data &&
-          (Object.values(exam_types.data).flat() as ExamType[]).map((type) => (
-            <TabsTrigger
-              onClick={() => setCurrentTab(type.id)}
-              value={type.id.toString()}
-              key={type.id}
-            >
-              {type.name}
-            </TabsTrigger>
-          ))}
-      </TabsList>
-      {currentTab && <QuestionsList exam_type_id={currentTab} />}
-    </Tabs>
-  );
+  if (search.has("type")) {
+    const exam_type_id = parseInt(search.get("type") as string);
+
+    return <QuestionsList exam_type_id={exam_type_id} />;
+  } else {
+    return (
+      <ExamTypeList examTypes={Object.values(exam_types.data ?? []).flat()} />
+    );
+  }
 }
 
 export default QuestionsSection;
