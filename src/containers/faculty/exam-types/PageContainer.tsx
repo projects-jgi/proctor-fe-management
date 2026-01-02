@@ -68,6 +68,9 @@ function PageContainer() {
                       {type.is_private ? "Private" : "Public"}
                     </Badge>
                   </CardTitle>
+                  {type.description && (
+                    <CardDescription>{type.description}</CardDescription>
+                  )}
                   <CardAction>
                     <div className="flex items-center gap-2">
                       <UpdateType defaultValues={type} />

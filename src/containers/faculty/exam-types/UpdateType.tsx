@@ -127,9 +127,8 @@ function UpdateType({
                       id="description"
                       onChange={field.onChange}
                       placeholder="Type your description here."
-                    >
-                      {field.value}
-                    </Textarea>
+                      defaultValue={field.value}
+                    />
                   </FormControl>
                 </FormItem>
               )}
