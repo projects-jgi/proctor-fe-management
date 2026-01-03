@@ -31,6 +31,14 @@ import {
   MultiSelectTrigger,
   MultiSelectValue,
 } from "@/components/ui/multi-select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   create_exam,
@@ -40,11 +48,11 @@ import {
 import { ExamType } from "@/types/exam";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
-import { Percent } from "lucide-react";
+import { Equal, Percent, Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { set, z } from "zod";
 import { fi } from "zod/v4/locales";
 
 const examSchema = z.object({
@@ -91,8 +99,8 @@ export default function FormCard({
 }: {
   defaultValues?: z.infer<typeof examSchema>;
 }) {
-  const [examTypeValues, setExamTypeValues] = useState<string[] | undefined>(
-    []
+  const [examTypeValues, setExamTypeValues] = useState<Map<string, number>>(
+    new Map()
   );
 
   const examTypes = useQuery<{ [key: string]: ExamType[] }>({
@@ -108,9 +116,12 @@ export default function FormCard({
   });
 
   useEffect(() => {
-    setExamTypeValues(
-      defaultValues?.exam_type_mappings?.map((m: any) => String(m.exam_type_id))
-    );
+    const mappings: Map<string, number> = new Map();
+    console.log("Default Values: ", defaultValues);
+    defaultValues?.exam_type_mappings?.forEach((mapping: any) => {
+      mappings.set(String(mapping.exam_type_id), mapping.limit_questions_to);
+    });
+    setExamTypeValues(mappings);
   }, []);
 
   const form = useForm({
@@ -130,9 +141,7 @@ export default function FormCard({
   });
 
   async function onSubmit(data: z.infer<typeof examSchema>) {
-    console.log(data);
-
-    if (!examTypeValues || examTypeValues.length == 0) {
+    if (!examTypeValues || examTypeValues.size == 0) {
       console.log("Exam Types: ", examTypeValues);
       form.setError("exam_type_mappings", {
         message: "Please select at least one exam type",
@@ -142,11 +151,10 @@ export default function FormCard({
 
     const exam_type_mappings = [];
 
-    for (const types of data.exam_type_mappings || []) {
-      // TODO: Replace hardcoded limit_questions_to value
+    for (const [key, value] of examTypeValues.entries()) {
       exam_type_mappings.push({
-        exam_type_id: Number(types),
-        limit_questions_to: 15,
+        exam_type_id: Number(key),
+        limit_questions_to: value,
       });
     }
 
@@ -174,6 +182,33 @@ export default function FormCard({
     }
   }
 
+  function addExamTypeMapping() {
+    const values = new Map(examTypeValues);
+    values.set("", 15);
+    setExamTypeValues(values);
+    // form.setValue("exam_type_mappings", values);
+  }
+
+  function onExamTypeValueChange(currentValue: string, newValue: string) {
+    const values = new Map(examTypeValues);
+    const currentCount = values.get(currentValue) || 15;
+    values.delete(currentValue);
+    values.set(newValue, currentCount);
+    setExamTypeValues(values);
+  }
+
+  function onExamTypeValueDelete(value: string) {
+    const values = new Map(examTypeValues);
+    values.delete(value);
+    setExamTypeValues(values);
+  }
+
+  function onExamTypeQuestionCountChange(examType: string, count: number) {
+    const values = new Map(examTypeValues);
+    values.set(examType, count);
+    setExamTypeValues(values);
+  }
+
   return (
     <>
       <form
@@ -190,6 +225,7 @@ export default function FormCard({
               <Controller
                 control={form.control}
                 name="name"
+                defaultValue=""
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel
@@ -213,6 +249,7 @@ export default function FormCard({
               <Controller
                 control={form.control}
                 name="description"
+                defaultValue=""
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel
@@ -248,33 +285,66 @@ export default function FormCard({
                     >
                       Exam Type Mapping *
                     </FieldLabel>
-                    <MultiSelect
-                      {...field}
-                      values={examTypeValues}
-                      onValuesChange={(values) => {
-                        setExamTypeValues(values);
-                        field.onChange(values);
-                      }}
-                    >
-                      <MultiSelectTrigger className="w-full">
-                        <MultiSelectValue placeholder="Search Exam Type..." />
-                      </MultiSelectTrigger>
-                      <MultiSelectContent>
-                        <MultiSelectGroup>
-                          {examTypes.data &&
-                            Object.values(examTypes.data)
-                              .flat()
-                              .map((type: ExamType) => (
-                                <MultiSelectItem
-                                  key={type.id}
-                                  value={String(type.id)}
-                                >
-                                  {type.name}
-                                </MultiSelectItem>
-                              ))}
-                        </MultiSelectGroup>
-                      </MultiSelectContent>
-                    </MultiSelect>
+                    {examTypeValues.size > 0 &&
+                      Array.from(examTypeValues.keys()).map((value, index) => (
+                        <div className="flex gap-4" key={index}>
+                          <Select
+                            value={value || undefined}
+                            onValueChange={(new_value) =>
+                              onExamTypeValueChange(value, new_value)
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Exam Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                {examTypes.data &&
+                                  Object.values(examTypes.data)
+                                    .flat()
+                                    .map((type: ExamType) => (
+                                      <SelectItem
+                                        key={type.id}
+                                        value={String(type.id)}
+                                        defaultChecked={true}
+                                      >
+                                        {type.name}
+                                      </SelectItem>
+                                    ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          <Input
+                            type="number"
+                            placeholder="No. of Questions"
+                            className="w-min"
+                            value={examTypeValues.get(value)}
+                            onChange={(ele) =>
+                              onExamTypeQuestionCountChange(
+                                value,
+                                ele.currentTarget.valueAsNumber
+                              )
+                            }
+                          />
+                          <Button
+                            variant="destructive"
+                            onClick={() => onExamTypeValueDelete(value)}
+                            type="button"
+                          >
+                            <Trash />
+                          </Button>
+                        </div>
+                      ))}
+                    <div className="w-min">
+                      <Button
+                        onClick={addExamTypeMapping}
+                        type="button"
+                        variant={"outline"}
+                        className="inline-flex"
+                      >
+                        <Plus />
+                      </Button>
+                    </div>
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
@@ -293,6 +363,7 @@ export default function FormCard({
               <Controller
                 control={form.control}
                 name="duration_in_minutes"
+                defaultValue={90}
                 render={({ field, fieldState }) => (
                   <Field
                     data-invalid={fieldState.invalid}
@@ -367,6 +438,7 @@ export default function FormCard({
               <Controller
                 control={form.control}
                 name="max_violation_count"
+                defaultValue={10}
                 render={({ field, fieldState }) => (
                   <Field
                     data-invalid={fieldState.invalid}
@@ -394,6 +466,7 @@ export default function FormCard({
               <Controller
                 control={form.control}
                 name="passing_percentage"
+                defaultValue={50}
                 render={({ field, fieldState }) => (
                   <Field
                     data-invalid={fieldState.invalid}
