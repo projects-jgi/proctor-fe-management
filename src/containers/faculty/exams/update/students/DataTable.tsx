@@ -12,6 +12,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+} from "@/components/ui/card";
+import {
   ColumnDef,
   useReactTable,
   getCoreRowModel,
@@ -23,22 +29,50 @@ import {
   getPaginationRowModel,
 } from "@tanstack/react-table";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Mail } from "lucide-react";
+import {
+  get_mapped_students_for_exam,
+  map_students_to_exam,
+} from "@/lib/server_api/faculty";
+import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  rowSelection: Record<string, boolean>;
-  setRowSelection: Dispatch<SetStateAction<Record<string, boolean>>>;
+  exam_id: number;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  rowSelection,
-  setRowSelection,
+  exam_id,
 }: DataTableProps<TData, TValue>) {
+  const mapped_student_exam_data = useQuery({
+    queryKey: ["faculty", "exams", { exam_id }, "students"],
+    queryFn: async () => {
+      const response = await get_mapped_students_for_exam({ exam_id });
+      if (response.status) {
+        return response.data;
+      } else {
+        throw new Error("Failed to fetch mapped students for exam");
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (mapped_student_exam_data.data) {
+      setRowSelection(
+        Object.fromEntries(
+          Object.keys(mapped_student_exam_data.data).map((key) => [key, true])
+        )
+      );
+    }
+  }, [mapped_student_exam_data.data]);
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
   const table = useReactTable({
     data,
@@ -58,52 +92,92 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  return (
-    <div>
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+  async function handleSave() {
+    toast.promise(
+      () => {
+        return map_students_to_exam({
+          exam_id,
+          student_mappings: rowSelection,
+        }).then((response) => {
+          if (response.status) {
+            return response.message;
           }
-          className="max-w-sm"
-        />
-      </div>
-      <div className="overflow-hidden rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
+
+          return new Error(response.message);
+        });
+      },
+      {
+        loading: "Mapping Students to exam...",
+        success: (res) => res,
+        error: (err) => err.message,
+      }
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <Input
+            placeholder="Filter emails..."
+            value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("email")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+          <CardAction className="flex items-center gap-4">
+            {/* <Button variant="outline">
+              <Mail />
+              Send Invite
+            </Button> */}
+            {rowSelection && Object.keys(rowSelection).length > 0 && (
+              <Button onClick={handleSave}>Map Students</Button>
+            )}
+          </CardAction>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div>
+          <div className="overflow-hidden rounded-md">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
                         )}
-                  </TableHead>
+                      </TableCell>
+                    ))}
+                  </TableRow>
                 ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="mt-4">
-        <DataTablePagination table={table} />
-      </div>
-    </div>
+              </TableBody>
+            </Table>
+          </div>
+          <div className="mt-4">
+            <DataTablePagination table={table} />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

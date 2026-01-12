@@ -344,6 +344,31 @@ export async function map_students_to_exam({
   }
 }
 
+export async function get_mapped_students_for_exam({
+  exam_id,
+}: {
+  exam_id: number;
+}) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/faculty/exams/${exam_id}/students`,
+      isAuthorized: true,
+    });
+
+    return {
+      status: true,
+      data: response.data.data,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message:
+        error.response?.data?.message ||
+        "Unable to fetch mapped students for exam",
+    };
+  }
+}
+
 export async function delete_student({
   student_ids,
 }: {

@@ -37,7 +37,9 @@ export const columns: ColumnDef<StudentUser>[] = [
   },
   {
     accessorKey: "email",
-    header: "Email",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Email" />
+    ),
   },
   {
     accessorKey: "created_at",
