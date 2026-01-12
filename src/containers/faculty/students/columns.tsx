@@ -1,10 +1,12 @@
 "use client";
 
+import { DataTableColumnHeader } from "@/components/datatable/DataTableColumnHeader";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StudentUser } from "@/types/users";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Trash } from "lucide-react";
+import { DeleteStudentModal } from "./DeleteStudentModal";
 
 export const columns: ColumnDef<StudentUser>[] = [
   {
@@ -32,37 +34,29 @@ export const columns: ColumnDef<StudentUser>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
+      return <DataTableColumnHeader column={column} title="Name" />;
     },
   },
   {
     accessorKey: "email",
-    header: "Email",
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Email" />;
+    },
   },
   {
     accessorKey: "created_at",
     header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Created At
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
+      return <DataTableColumnHeader column={column} title="Created At" />;
     },
     cell: ({ getValue }) => {
       const date = new Date(getValue() as string);
       return date.toLocaleString();
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      return <DeleteStudentModal student={row.original} />;
     },
   },
 ];

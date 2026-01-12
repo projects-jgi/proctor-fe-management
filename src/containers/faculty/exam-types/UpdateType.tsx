@@ -36,7 +36,7 @@ import Loading from "@/components/Loading";
 
 const addTypeSchema = z.object({
   name: z.string().min(1, "Exam type name is required"),
-  description: z.string().min(1, "Description is required"),
+  description: z.string().optional(),
   is_private: z.boolean().optional(),
 });
 

@@ -343,3 +343,23 @@ export async function map_students_to_exam({
     };
   }
 }
+
+export async function delete_student({ student_id }: { student_id: number }) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/faculty/students/${student_id}`,
+      method: "DELETE",
+      isAuthorized: true,
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unable to delete student",
+    };
+  }
+}
