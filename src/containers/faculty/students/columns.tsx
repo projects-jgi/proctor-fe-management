@@ -56,7 +56,7 @@ export const columns: ColumnDef<StudentUser>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      return <DeleteStudentModal student={row.original} />;
+      return <DeleteStudentModal student_ids={[row.original.id]} />;
     },
   },
 ];

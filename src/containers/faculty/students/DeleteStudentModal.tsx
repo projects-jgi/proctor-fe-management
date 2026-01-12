@@ -12,14 +12,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { delete_student } from "@/lib/server_api/faculty";
 import { StudentUser } from "@/types/users";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash } from "lucide-react";
 import { toast } from "sonner";
 
-export function DeleteStudentModal({ student }: { student: StudentUser }) {
+export function DeleteStudentModal({ student_ids }: { student_ids: number[] }) {
+  const queryClient = useQueryClient();
   const deleteMutation = useMutation({
-    mutationFn: ({ student_id }: { student_id: number }) =>
-      delete_student({ student_id }),
+    mutationFn: ({ student_ids }: { student_ids: number[] }) =>
+      delete_student({ student_ids }),
   });
 
   return (
@@ -33,8 +34,9 @@ export function DeleteStudentModal({ student }: { student: StudentUser }) {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete student{" "}
-            <b>{student.email}</b> and remove their data from our servers.
+            This action cannot be undone. This will permanently delete{" "}
+            <b>{student_ids.length}</b> student(s) and remove their data from
+            our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -47,9 +49,12 @@ export function DeleteStudentModal({ student }: { student: StudentUser }) {
                 toast.promise(
                   () =>
                     deleteMutation
-                      .mutateAsync({ student_id: student.id })
+                      .mutateAsync({ student_ids })
                       .then((response) => {
                         if (response.status) {
+                          queryClient.invalidateQueries({
+                            queryKey: ["faculty", "students"],
+                          });
                           return response.message;
                         }
                         throw new Error(response.message);

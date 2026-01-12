@@ -32,9 +32,6 @@ export default function PageContainer() {
   return (
     <div className="my-8 space-y-4">
       <section>
-        <div className="flex justify-end gap-2 mb-4">
-          <UploadStudents />
-        </div>
         {data.isLoading ? (
           <Loading />
         ) : data.isError ? (

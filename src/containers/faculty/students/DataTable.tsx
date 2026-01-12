@@ -24,6 +24,8 @@ import {
   getPaginationRowModel,
 } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
+import UploadStudents from "./UploadStudents";
+import { DeleteStudentModal } from "./DeleteStudentModal";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -36,7 +38,7 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [rowSelection, setRowSelection] = useState({});
+  const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
 
   const table = useReactTable({
     data,
@@ -48,6 +50,7 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
+    getRowId: (row) => (row as any).id,
     state: {
       sorting,
       columnFilters,
@@ -58,7 +61,7 @@ export function DataTable<TData, TValue>({
   return (
     <Card>
       <CardContent>
-        <div>
+        <div className="flex justify-between">
           <div className="mb-4 flex items-center justify-end">
             <Input
               placeholder="Filter emails..."
@@ -73,6 +76,16 @@ export function DataTable<TData, TValue>({
               className="max-w-sm"
             />
           </div>
+          <div className="flex justify-end gap-2 mb-4">
+            <UploadStudents />
+            {Object.keys(rowSelection).length > 0 && (
+              <DeleteStudentModal
+                student_ids={Object.keys(rowSelection).map(Number)}
+              />
+            )}
+          </div>
+        </div>
+        <div>
           <div className="overflow-hidden rounded-md">
             <Table>
               <TableHeader className="bg-secondary">

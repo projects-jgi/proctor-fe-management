@@ -344,12 +344,20 @@ export async function map_students_to_exam({
   }
 }
 
-export async function delete_student({ student_id }: { student_id: number }) {
+export async function delete_student({
+  student_ids,
+}: {
+  student_ids: number[];
+}) {
+  const data = {
+    student_ids: student_ids,
+  };
   try {
     const response = await Request({
-      url: process.env.BACKEND_HOST + `/api/faculty/students/${student_id}`,
+      url: process.env.BACKEND_HOST + `/api/faculty/students`,
       method: "DELETE",
       isAuthorized: true,
+      body: data,
     });
 
     return {
