@@ -33,9 +33,9 @@ import { Edit, Eye, Mail } from "lucide-react";
 import { map_students_to_exam } from "@/lib/server_api/faculty";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { baseColumns } from "./baseColumns";
-import { editColumns } from "./editColumns";
+import { base_columns } from "./base_columns";
 import { Toggle } from "@/components/ui/toggle";
+import { edit_columns } from "./edit_columns";
 
 interface DataTableProps<TData, TValue> {
   data: TData[];
@@ -50,20 +50,20 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const queryClient = useQueryClient();
   const [currentColumns, setCurrentColumns] = useState<ColumnDef<TData, any>[]>(
-    baseColumns as ColumnDef<TData, any>[]
+    base_columns as ColumnDef<TData, any>[]
   );
   const [currentData, setCurrentData] = useState(data);
   const [tableType, setTableType] = useState<"view" | "edit">("view");
 
   useEffect(() => {
     if (tableType === "edit") {
-      setCurrentColumns([...editColumns, ...baseColumns] as ColumnDef<
+      setCurrentColumns([...edit_columns, ...base_columns] as ColumnDef<
         TData,
         any
       >[]);
       setCurrentData(data);
     } else {
-      setCurrentColumns(baseColumns as ColumnDef<TData, any>[]);
+      setCurrentColumns(base_columns as ColumnDef<TData, any>[]);
       setCurrentData(
         Object.values(mapped_student_exam_data).map(
           (student: any) => student.student

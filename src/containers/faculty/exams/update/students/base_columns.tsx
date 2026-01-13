@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { StudentUser } from "@/types/users";
 import { ColumnDef } from "@tanstack/react-table";
 
-export const baseColumns: ColumnDef<StudentUser>[] = [
+export const base_columns: ColumnDef<StudentUser>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
