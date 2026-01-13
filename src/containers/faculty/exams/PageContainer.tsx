@@ -97,13 +97,11 @@ function PageContainer() {
                     Created At: {new Date(exam.created_at).toLocaleString()}
                   </p>
                   <div className="flex gap-2 items-center">
-                    {exam.status == 0 && (
-                      <Link href={`/faculty/exams/update/${exam.id}`}>
-                        <Button variant="outline">
-                          <Edit />
-                        </Button>
-                      </Link>
-                    )}
+                    <Link href={`/faculty/exams/update/${exam.id}`}>
+                      <Button variant="outline">
+                        <Edit />
+                      </Button>
+                    </Link>
                     <DeleteExam />
                   </div>
                 </div>

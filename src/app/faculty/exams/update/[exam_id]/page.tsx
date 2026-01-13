@@ -25,17 +25,17 @@ export default async function Page({ params }: { params: Params }) {
       />
       <div className="container my-8 space-y-6">
         <div className="flex justify-end">
-          {exam_details.data.status == 0 && (
-            <div className="flex items-center gap-4">
-              <Link href={`${exam_id}/students`}>
-                <Button variant="outline">
-                  <Users />
-                  Manage Students
-                </Button>
-              </Link>
+          <div className="flex items-center gap-4">
+            <Link href={`${exam_id}/students`}>
+              <Button variant="outline">
+                <Users />
+                Manage Students
+              </Button>
+            </Link>
+            {exam_details.data.status == 0 && (
               <PublishDialog exam_id={parseInt(exam_id)} />
-            </div>
-          )}
+            )}
+          </div>
         </div>
         <FormCard defaultValues={exam_details.data} />
       </div>
