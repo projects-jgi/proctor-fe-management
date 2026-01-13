@@ -2,9 +2,9 @@
 
 import {
   get_department_students,
+  get_mapped_students_for_exam,
   map_students_to_exam,
 } from "@/lib/server_api/faculty";
-import { columns } from "./columns";
 import { DataTable } from "./DataTable";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -27,14 +27,30 @@ export default function PageContainer({ exam_id }: { exam_id: number }) {
     },
   });
 
+  const mapped_student_exam_data = useQuery({
+    queryKey: ["faculty", "exams", { exam_id }, "students"],
+    queryFn: async () => {
+      const response = await get_mapped_students_for_exam({ exam_id });
+      if (response.status) {
+        return response.data;
+      } else {
+        throw new Error("Failed to fetch mapped students for exam");
+      }
+    },
+  });
+
   return (
     <section>
-      {data.isLoading ? (
+      {data.isLoading || mapped_student_exam_data.isLoading ? (
         <Loading />
-      ) : data.isError ? (
+      ) : data.isError || mapped_student_exam_data.isError ? (
         "Error loading data"
       ) : (
-        <DataTable columns={columns} data={data.data!} exam_id={exam_id} />
+        <DataTable
+          data={data.data!}
+          mapped_student_exam_data={mapped_student_exam_data.data}
+          exam_id={exam_id}
+        />
       )}
     </section>
   );

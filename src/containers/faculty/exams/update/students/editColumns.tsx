@@ -1,11 +1,8 @@
-"use client";
-
-import { DataTableColumnHeader } from "@/components/datatable/DataTableColumnHeader";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StudentUser } from "@/types/users";
 import { ColumnDef } from "@tanstack/react-table";
 
-export const columns: ColumnDef<StudentUser>[] = [
+export const editColumns: ColumnDef<StudentUser>[] = [
   {
     accessorKey: "id",
     header: ({ table }) => (
@@ -28,27 +25,5 @@ export const columns: ColumnDef<StudentUser>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
-  },
-  {
-    accessorKey: "name",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
-    ),
-  },
-  {
-    accessorKey: "email",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Email" />
-    ),
-  },
-  {
-    accessorKey: "created_at",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Crreated At" />
-    ),
-    cell: ({ getValue }) => {
-      const date = new Date(getValue() as string);
-      return date.toLocaleString();
-    },
   },
 ];

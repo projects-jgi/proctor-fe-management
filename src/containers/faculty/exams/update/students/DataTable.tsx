@@ -28,55 +28,68 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Mail } from "lucide-react";
-import {
-  get_mapped_students_for_exam,
-  map_students_to_exam,
-} from "@/lib/server_api/faculty";
+import { useEffect, useState } from "react";
+import { Edit, Eye, Mail } from "lucide-react";
+import { map_students_to_exam } from "@/lib/server_api/faculty";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { baseColumns } from "./baseColumns";
+import { editColumns } from "./editColumns";
+import { Toggle } from "@/components/ui/toggle";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  mapped_student_exam_data: TData[];
   exam_id: number;
 }
 
 export function DataTable<TData, TValue>({
-  columns,
   data,
+  mapped_student_exam_data,
   exam_id,
 }: DataTableProps<TData, TValue>) {
-  const mapped_student_exam_data = useQuery({
-    queryKey: ["faculty", "exams", { exam_id }, "students"],
-    queryFn: async () => {
-      const response = await get_mapped_students_for_exam({ exam_id });
-      if (response.status) {
-        return response.data;
-      } else {
-        throw new Error("Failed to fetch mapped students for exam");
-      }
-    },
-  });
+  const queryClient = useQueryClient();
+  const [currentColumns, setCurrentColumns] = useState<ColumnDef<TData, any>[]>(
+    baseColumns as ColumnDef<TData, any>[]
+  );
+  const [currentData, setCurrentData] = useState(data);
+  const [tableType, setTableType] = useState<"view" | "edit">("view");
 
   useEffect(() => {
-    if (mapped_student_exam_data.data) {
+    if (tableType === "edit") {
+      setCurrentColumns([...editColumns, ...baseColumns] as ColumnDef<
+        TData,
+        any
+      >[]);
+      setCurrentData(data);
+    } else {
+      setCurrentColumns(baseColumns as ColumnDef<TData, any>[]);
+      setCurrentData(
+        Object.values(mapped_student_exam_data).map(
+          (student: any) => student.student
+        )
+      );
+      // setCurrentData(data);
+    }
+  }, [tableType]);
+
+  useEffect(() => {
+    if (mapped_student_exam_data) {
       setRowSelection(
         Object.fromEntries(
-          Object.keys(mapped_student_exam_data.data).map((key) => [key, true])
+          Object.keys(mapped_student_exam_data).map((key) => [key, true])
         )
       );
     }
-  }, [mapped_student_exam_data.data]);
+  }, [mapped_student_exam_data]);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
   const table = useReactTable({
-    data,
-    columns,
+    data: currentData,
+    columns: currentColumns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
@@ -100,6 +113,9 @@ export function DataTable<TData, TValue>({
           student_mappings: rowSelection,
         }).then((response) => {
           if (response.status) {
+            queryClient.invalidateQueries({
+              queryKey: ["faculty", "exams", { exam_id }, "students"],
+            });
             return response.message;
           }
 
@@ -114,70 +130,108 @@ export function DataTable<TData, TValue>({
     );
   }
 
+  function toggleTableType() {
+    setTableType(tableType === "view" ? "edit" : "view");
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <Input
-            placeholder="Filter emails..."
-            value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("email")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
-          <CardAction className="flex items-center gap-4">
-            {/* <Button variant="outline">
+    <>
+      <div className="mb-4 flex items-end">
+        <Toggle variant="outline" className="ms-auto" onClick={toggleTableType}>
+          {tableType === "view" ? (
+            <>
+              <Edit />
+              Edit Mappings
+            </>
+          ) : (
+            <>
+              <Eye />
+              View Mappings
+            </>
+          )}
+        </Toggle>
+      </div>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <Input
+              placeholder="Filter emails..."
+              value={
+                (table.getColumn("email")?.getFilterValue() as string) ?? ""
+              }
+              onChange={(event) =>
+                table.getColumn("email")?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm"
+            />
+            <CardAction className="flex items-center gap-4">
+              {/* <Button variant="outline">
               <Mail />
               Send Invite
             </Button> */}
-            {rowSelection && Object.keys(rowSelection).length > 0 && (
-              <Button onClick={handleSave}>Map Students</Button>
-            )}
-          </CardAction>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div>
-          <div className="overflow-hidden rounded-md">
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+              {tableType == "edit" &&
+                rowSelection &&
+                Object.keys(rowSelection).length > 0 && (
+                  <Button onClick={handleSave}>Map Students</Button>
+                )}
+            </CardAction>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div>
+            <div className="overflow-hidden rounded-md">
+              <Table>
+                <TableHeader>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {table.getRowModel().rows.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={currentColumns.length}
+                        className="text-center h-12"
+                      >
+                        {tableType === "view"
+                          ? "No students mapped to this exam."
+                          : "No students found."}
                       </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </TableRow>
+                  ) : (
+                    table.getRowModel().rows.map((row) => (
+                      <TableRow key={row.id}>
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+            <div className="mt-4">
+              <DataTablePagination table={table} />
+            </div>
           </div>
-          <div className="mt-4">
-            <DataTablePagination table={table} />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </>
   );
 }
