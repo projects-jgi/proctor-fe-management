@@ -19,6 +19,8 @@ import Loading from "@/components/Loading";
 import { ExamType } from "@/types/exam";
 import { Faculty } from "@/types/users";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Edit, Plus } from "lucide-react";
 
 type ExamTypeResponse = ExamType & {
   faculty: Faculty;
@@ -51,7 +53,11 @@ function PageContainer() {
       <section>
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Manage Exam Types</h2>
-          <AddType />
+          <AddType>
+            <Button variant="default">
+              <Plus /> Add Exam Type
+            </Button>
+          </AddType>
         </div>
         {types.data &&
           Object.values(types.data)
@@ -73,7 +79,12 @@ function PageContainer() {
                   )}
                   <CardAction>
                     <div className="flex items-center gap-2">
-                      <UpdateType defaultValues={type} />
+                      {/* <UpdateType defaultValues={type} /> */}
+                      <AddType defaultValues={type}>
+                        <Button variant="outline">
+                          <Edit />
+                        </Button>
+                      </AddType>
                       <DeleteType exam_type_id={type.id} />
                     </div>
                   </CardAction>

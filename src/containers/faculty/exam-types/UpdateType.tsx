@@ -43,7 +43,7 @@ const addTypeSchema = z.object({
 function UpdateType({
   defaultValues,
 }: {
-  defaultValues: Partial<z.infer<typeof addTypeSchema>>;
+  defaultValues?: Partial<z.infer<typeof addTypeSchema>>;
 }) {
   const queryClient = useQueryClient();
 
@@ -71,7 +71,7 @@ function UpdateType({
     resolver: zodResolver(addTypeSchema),
     defaultValues: {
       ...defaultValues,
-      is_private: defaultValues.is_private ? true : false,
+      is_private: defaultValues?.is_private ? true : false,
     },
   });
 

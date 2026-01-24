@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 
-import React from "react";
+import React, { useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -40,51 +40,58 @@ const addTypeSchema = z.object({
   is_private: z.boolean().optional(),
 });
 
-function AddType() {
+function AddType({
+  children,
+  defaultValues,
+}: {
+  children: React.ReactNode;
+  defaultValues?: Partial<z.infer<typeof addTypeSchema>>;
+}) {
   const queryClient = useQueryClient();
+  const cancelBtnRef = useRef<HTMLButtonElement>(null);
 
   const submitMutate = useMutation({
-    mutationFn: async (values: z.infer<typeof addTypeSchema>) => {
-      const response = await create_exam_type(values);
-      if (response.status) {
-        queryClient.invalidateQueries({
-          queryKey: ["faculty", "exam-types"],
-        });
-        return response.data;
-      } else {
-        throw new Error(response.message);
-      }
-    },
-    onSuccess: (data) => {
-      toast.success("Exam type created successfully");
-      form.reset();
-    },
-    onError: (error: any) => {
-      toast.error("Error: " + error);
-    },
+    mutationFn: create_exam_type,
   });
 
   const form = useForm<z.infer<typeof addTypeSchema>>({
     resolver: zodResolver(addTypeSchema),
     defaultValues: {
-      name: "",
-      description: "",
-      is_private: false,
+      ...defaultValues,
+      is_private: defaultValues?.is_private ? true : false,
     },
   });
 
   async function handleSubmit(values: z.infer<typeof addTypeSchema>) {
-    console.log(values);
-    submitMutate.mutate(values);
+    toast.promise(
+      () =>
+        submitMutate.mutateAsync(values).then((response) => {
+          if (response.status) {
+            queryClient.invalidateQueries({
+              queryKey: ["faculty", "exam-types"],
+            });
+            cancelBtnRef.current?.click();
+            return response.message;
+          }
+
+          throw new Error(response.message);
+        }),
+      {
+        loading: "Creating exam type...",
+        success: (message) => message || "Exam type created successfully",
+        error: (err) => "Error: " + (err.message || "Something went wrong"),
+      }
+    );
   }
 
   return (
     <Dialog>
       <Form {...form}>
         <DialogTrigger asChild>
-          <Button variant="default">
+          {/* <Button variant="default">
             <Plus /> Add Exam Type
-          </Button>
+          </Button> */}
+          {children}
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <form
@@ -155,7 +162,9 @@ function AddType() {
             />
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline" ref={cancelBtnRef}>
+                  Cancel
+                </Button>
               </DialogClose>
               <Button type="submit" disabled={submitMutate.isPending}>
                 {submitMutate.isPending && <Loading />} Save changes
