@@ -211,7 +211,8 @@ export async function upload_exam_questions(exam_type_id: number, file: File) {
 
     const response = await Request({
       url:
-        process.env.BACKEND_HOST + `/api/exams/types/${exam_type_id}/questions`,
+        process.env.BACKEND_HOST +
+        `/api/exams/types/${exam_type_id}/questions/upload`,
       method: "POST",
       isAuthorized: true,
       body: formData,
@@ -226,6 +227,35 @@ export async function upload_exam_questions(exam_type_id: number, file: File) {
       status: false,
       message:
         error.response?.data?.message || "Unable to upload exam questions",
+    };
+  }
+}
+
+export async function create_exam_question({
+  exam_type_id,
+  body,
+}: {
+  exam_type_id: number;
+  body: object;
+}) {
+  try {
+    const response = await Request({
+      url:
+        process.env.BACKEND_HOST + `/api/exams/types/${exam_type_id}/questions`,
+      method: "POST",
+      isAuthorized: true,
+      body: body,
+    });
+
+    return {
+      status: true,
+      data: response.data.data,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message:
+        error.response?.data?.message || "Unable to create exam question",
     };
   }
 }

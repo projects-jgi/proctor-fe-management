@@ -21,6 +21,7 @@ import Link from "next/link";
 import { DataTable } from "./datatable/Datatable";
 import { ExamQuestionColumns } from "./datatable/ExamQuestionColumns";
 import { useState } from "react";
+import CreateQuestionModal from "./CreateQuestionModal";
 
 export default function QuestionsList({
   exam_type_id,
@@ -60,10 +61,13 @@ export default function QuestionsList({
             <span>Add Exam Type</span>
           </Button>
         </Link>
-        {/* <Button>
+        <Button asChild>
+          <Link href={`/faculty/questions/create?type=${exam_type_id}`}>
             <Plus />
             <span>Create Question</span>
-          </Button> */}
+          </Link>
+        </Button>
+        <CreateQuestionModal />
       </div>
       <div className="border border-secondary rounded">
         <DataTable
