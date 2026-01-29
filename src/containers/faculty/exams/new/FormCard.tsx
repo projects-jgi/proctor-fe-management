@@ -47,7 +47,7 @@ import {
 } from "@/lib/server_api/faculty";
 import { ExamType } from "@/types/exam";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Equal, Percent, Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -100,8 +100,9 @@ export default function FormCard({
   defaultValues?: z.infer<typeof examSchema>;
 }) {
   const [examTypeValues, setExamTypeValues] = useState<Map<string, number>>(
-    new Map()
+    new Map(),
   );
+  const queryClient = useQueryClient();
 
   const examTypes = useQuery<{ [key: string]: ExamType[] }>({
     queryKey: ["faculty", "exam-types"],
@@ -130,7 +131,7 @@ export default function FormCard({
       ...defaultValues,
       exam_type_mappings: defaultValues?.exam_type_mappings
         ? defaultValues.exam_type_mappings.map((m: any) =>
-            String(m.exam_type_id)
+            String(m.exam_type_id),
           )
         : [],
       start_time: toLocalInputFormat(defaultValues?.start_time || ""),
@@ -171,12 +172,14 @@ export default function FormCard({
 
       if (!mapping_response.status) {
         toast.error(
-          mapping_response.message || "Unable to create exam type mappings"
+          mapping_response.message || "Unable to create exam type mappings",
         );
         return;
       }
       toast.success(response.message || "Exam created successfully");
-      form.reset();
+      queryClient.invalidateQueries({
+        queryKey: ["faculty", "exam-types"],
+      });
     } else {
       toast.error(response.message || "Unable to create exam");
     }
@@ -322,7 +325,7 @@ export default function FormCard({
                             onChange={(ele) =>
                               onExamTypeQuestionCountChange(
                                 value,
-                                ele.currentTarget.valueAsNumber
+                                ele.currentTarget.valueAsNumber,
                               )
                             }
                           />
