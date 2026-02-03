@@ -37,6 +37,6 @@ export const config = {
      * - auth (login routes)
      * - / (root file)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|$).*)",
+    "/((?!api|_next/static|_next/image|assets|favicon.ico|$).*)",
   ],
 };

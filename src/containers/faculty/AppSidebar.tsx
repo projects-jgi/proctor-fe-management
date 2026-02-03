@@ -21,6 +21,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
@@ -77,7 +78,20 @@ function AppSidebar() {
     <Sidebar variant="inset">
       <SidebarHeader className="h-16 inline-flex items-center justify-center">
         <Link href={"/student"} className="">
-          Proctor
+          <Image
+            src="/assets/images/Jain-logo.png"
+            alt="Jain Logo"
+            className="dark:hidden"
+            height={100}
+            width={"120"}
+          />
+          <Image
+            src="/assets/images/Jain-logo-white.png"
+            alt="Jain Logo"
+            className="hidden dark:block"
+            height={100}
+            width={"120"}
+          />
         </Link>
       </SidebarHeader>
       <SidebarContent>
