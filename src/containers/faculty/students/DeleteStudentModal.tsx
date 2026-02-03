@@ -16,7 +16,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash } from "lucide-react";
 import { toast } from "sonner";
 
-export function DeleteStudentModal({ student_ids }: { student_ids: number[] }) {
+export function DeleteStudentModal({
+  variant = "default",
+  student_ids,
+}: {
+  variant?: "default" | "icon";
+  student_ids: number[];
+}) {
   const queryClient = useQueryClient();
   const deleteMutation = useMutation({
     mutationFn: ({ student_ids }: { student_ids: number[] }) =>
@@ -26,9 +32,16 @@ export function DeleteStudentModal({ student_ids }: { student_ids: number[] }) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive">
-          <Trash />
-        </Button>
+        {variant === "icon" ? (
+          <Button variant="ghost" className="text-destructive" size="icon">
+            <Trash />
+          </Button>
+        ) : (
+          <Button variant="destructive">
+            <Trash />
+            Delete
+          </Button>
+        )}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -63,7 +76,7 @@ export function DeleteStudentModal({ student_ids }: { student_ids: number[] }) {
                     loading: "Deleting student...",
                     success: (message) => message,
                     error: (err) => "Error: " + err.message,
-                  }
+                  },
                 );
               }}
             >
