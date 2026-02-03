@@ -9,8 +9,11 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { update_user } from "@/lib/server_api/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 
 const PersonlFormSchema = z.object({
@@ -22,16 +25,42 @@ const PersonlFormSchema = z.object({
   }),
 });
 
-export default function PersonalForm() {
+export default function PersonalForm({
+  defaultValues,
+}: {
+  defaultValues: any;
+}) {
+  const queryClient = useQueryClient();
+
   const form = useForm({
     resolver: zodResolver(PersonlFormSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-    },
+    defaultValues,
   });
 
-  function handleSubmit(data: z.infer<typeof PersonlFormSchema>) {}
+  const update_mutate = useMutation({
+    mutationFn: update_user,
+  });
+
+  function handleSubmit(data: z.infer<typeof PersonlFormSchema>) {
+    toast.promise(
+      () =>
+        update_mutate.mutateAsync(data).then((res) => {
+          if (res.status) {
+            queryClient.invalidateQueries({
+              queryKey: ["faculty", "info"],
+            });
+            return res.message;
+          }
+
+          return new Error(res.message);
+        }),
+      {
+        loading: "Updating profile...",
+        success: "Profile updated successfully",
+        error: (err) => `Error: ${err.message}`,
+      },
+    );
+  }
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)}>

@@ -12,8 +12,11 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { update_password } from "@/lib/server_api/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 
 const ChangePasswordFormSchema = z
@@ -21,32 +24,52 @@ const ChangePasswordFormSchema = z
     current_password: z
       .string()
       .min(8, "Current Password must be at least 8 characters"),
-    new_password: z
+    password: z
       .string()
       .min(8, "New Password must be at least 8 characters")
       .regex(/[A-Z]/, "Must contain at least one uppercase letter")
       .regex(/[a-z]/, "Must contain at least one lowercase letter")
       .regex(/[0-9]/, "Must contain at least one number")
       .regex(/[^a-zA-Z0-9]/, "Must contain at least one special character"),
-    confirm_new_password: z
+    password_confirmation: z
       .string()
       .min(8, "Confirm New Password must be at least 8 characters"),
   })
-  .refine((data) => data.new_password === data.confirm_new_password, {
+  .refine((data) => data.password === data.password_confirmation, {
     message: "Passwords do not match",
-    path: ["confirm_new_password"],
+    path: ["password_confirmation"],
   });
 export default function ChangePasswordForm() {
   const form = useForm({
     resolver: zodResolver(ChangePasswordFormSchema),
     defaultValues: {
       current_password: "",
-      new_password: "",
-      confirm_new_password: "",
+      password: "",
+      password_confirmation: "",
     },
   });
 
-  function handleSubmit(data: z.infer<typeof ChangePasswordFormSchema>) {}
+  const update_mutate = useMutation({
+    mutationFn: update_password,
+  });
+
+  function handleSubmit(data: z.infer<typeof ChangePasswordFormSchema>) {
+    toast.promise(
+      () =>
+        update_mutate.mutateAsync(data).then((res) => {
+          if (res.status) {
+            return res.message;
+          }
+
+          return new Error(res.message);
+        }),
+      {
+        loading: "Updating password...",
+        success: "Password updated successfully",
+        error: (err) => `${err.message}`,
+      },
+    );
+  }
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)}>
       <FieldSet>
@@ -74,7 +97,7 @@ export default function ChangePasswordForm() {
           />
           <Controller
             control={form.control}
-            name="new_password"
+            name="password"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel
@@ -92,7 +115,7 @@ export default function ChangePasswordForm() {
           />
           <Controller
             control={form.control}
-            name="confirm_new_password"
+            name="password_confirmation"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel

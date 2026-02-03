@@ -1,30 +1,102 @@
-'use server';
+"use server";
 
 import Request from "@/utils/Request";
 import { loginSession, logoutSession } from "@/utils/session";
 
+export async function login({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) {
+  const body = {
+    email,
+    password,
+  };
 
-export async function login({ email, password}: {email: string, password: string}){
-    const body = {
-        email,
-        password
-    }
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + "/api/auth/faculty/login",
+      method: "POST",
+      body: body,
+    });
+    await loginSession(response.data);
+    return {
+      status: true,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unknown error occurred",
+    };
+  }
+}
 
-    try{
-        const response = await Request({url: process.env.BACKEND_HOST + "/api/auth/faculty/login", method: 'POST', body: body})
-        await loginSession(response.data)
-        return {
-            status: true
-        }
-    }catch(error: any){
-        return {
-            status: false,
-            message: error.response?.data?.message || "Unknown error occurred"
-        }
-    }}
+export async function logout() {
+  await logoutSession();
 
-export async function logout(){
-    await logoutSession()
+  return true;
+}
 
-    return true;
+export async function user() {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + "/api/auth/faculty",
+      method: "GET",
+      isAuthorized: true,
+    });
+
+    return {
+      status: true,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unknown error occurred",
+    };
+  }
+}
+
+export async function update_user(data: object) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + "/api/auth/faculty",
+      method: "POST",
+      body: data,
+      isAuthorized: true,
+    });
+
+    return {
+      status: true,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unknown error occurred",
+    };
+  }
+}
+
+export async function update_password(data: object) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + "/api/auth/faculty/change-password",
+      method: "POST",
+      body: data,
+      isAuthorized: true,
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unknown error occurred",
+    };
+  }
 }

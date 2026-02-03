@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardContent,
@@ -8,8 +10,31 @@ import {
 import { Mail } from "lucide-react";
 import PersonalForm from "./PersonalForm";
 import ChangePasswordForm from "./ChangePasswordForm";
+import { useQuery } from "@tanstack/react-query";
+import { user } from "@/lib/server_api/auth";
+import Loading from "@/components/Loading";
 
 export default function PageContainer() {
+  const user_query = useQuery({
+    queryKey: ["faculty", "info"],
+    queryFn: async () => {
+      const response = await user();
+      if (response.status) {
+        return response.data;
+      }
+
+      throw new Error(response.message);
+    },
+  });
+
+  if (user_query.isLoading) {
+    return <Loading />;
+  }
+
+  if (user_query.isError) {
+    return <div>{user_query.error?.message}</div>;
+  }
+
   return (
     <div className="grid gap-4 mt-4">
       <Card>
@@ -20,13 +45,15 @@ export default function PageContainer() {
                 S
               </div>
               <div className="flex flex-col gap-1">
-                <h2 className="text-2xl font-bold">Sudharshan R</h2>
-                <h3 className="text-md text-muted-foreground">
-                  Professor of Biology
-                </h3>
+                <h2 className="text-2xl font-bold">{user_query.data.name}</h2>
+                {user_query.data.role && (
+                  <h3 className="text-md text-muted-foreground">
+                    Professor of Biology
+                  </h3>
+                )}
                 <p className="text-sm text-muted-foreground">Faculty</p>
                 <p className="flex items-center gap-1 text-muted-foreground text-sm">
-                  <Mail size={15} /> sdfsdfsdf@sdfsdf.sdf
+                  <Mail size={15} /> {user_query.data.email}
                 </p>
               </div>
             </div>
@@ -41,7 +68,7 @@ export default function PageContainer() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <PersonalForm />
+          <PersonalForm defaultValues={user_query.data} />
         </CardContent>
       </Card>
       <Card>
