@@ -80,7 +80,7 @@ function PageContainer() {
                   <CardAction>
                     <div className="flex items-center gap-2">
                       {/* <UpdateType defaultValues={type} /> */}
-                      <AddType defaultValues={type}>
+                      <AddType defaultValues={type} update_id={type.id}>
                         <Button variant="outline">
                           <Edit />
                         </Button>

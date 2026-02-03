@@ -29,7 +29,7 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { create_exam_type } from "@/lib/server_api/faculty";
+import { create_exam_type, update_exam_type } from "@/lib/server_api/faculty";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Loading from "@/components/Loading";
@@ -43,15 +43,27 @@ const addTypeSchema = z.object({
 function AddType({
   children,
   defaultValues,
+  update_id,
 }: {
   children: React.ReactNode;
   defaultValues?: Partial<z.infer<typeof addTypeSchema>>;
+  update_id?: number;
 }) {
   const queryClient = useQueryClient();
   const cancelBtnRef = useRef<HTMLButtonElement>(null);
 
-  const submitMutate = useMutation({
+  const createMutate = useMutation({
     mutationFn: create_exam_type,
+  });
+
+  const updateMutate = useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: z.infer<typeof addTypeSchema>;
+    }) => update_exam_type(id, data),
   });
 
   const form = useForm<z.infer<typeof addTypeSchema>>({
@@ -62,14 +74,16 @@ function AddType({
     },
   });
 
-  async function handleSubmit(values: z.infer<typeof addTypeSchema>) {
+  async function addExamType(values: z.infer<typeof addTypeSchema>) {
     toast.promise(
       () =>
-        submitMutate.mutateAsync(values).then((response) => {
+        createMutate.mutateAsync(values).then((response) => {
           if (response.status) {
             queryClient.invalidateQueries({
               queryKey: ["faculty", "exam-types"],
             });
+            form.reset();
+
             cancelBtnRef.current?.click();
             return response.message;
           }
@@ -80,8 +94,44 @@ function AddType({
         loading: "Creating exam type...",
         success: (message) => message || "Exam type created successfully",
         error: (err) => "Error: " + (err.message || "Something went wrong"),
-      }
+      },
     );
+  }
+
+  async function updateExamType(values: z.infer<typeof addTypeSchema>) {
+    toast.promise(
+      () =>
+        updateMutate
+          .mutateAsync({
+            id: parseInt(update_id as unknown as string),
+            data: values,
+          })
+          .then((response) => {
+            if (response.status) {
+              queryClient.invalidateQueries({
+                queryKey: ["faculty", "exam-types"],
+              });
+              form.reset();
+              cancelBtnRef.current?.click();
+              return response.message;
+            }
+
+            throw new Error(response.message);
+          }),
+      {
+        loading: "Updating exam type...",
+        success: (message) => message || "Exam type updated successfully",
+        error: (err) => "Error: " + (err.message || "Something went wrong"),
+      },
+    );
+  }
+
+  function handleSubmit(values: z.infer<typeof addTypeSchema>) {
+    if (defaultValues) {
+      updateExamType(values);
+    } else {
+      addExamType(values);
+    }
   }
 
   return (
@@ -99,9 +149,12 @@ function AddType({
             onSubmit={form.handleSubmit(handleSubmit)}
           >
             <DialogHeader>
-              <DialogTitle>Add Exam Type</DialogTitle>
+              <DialogTitle>
+                {update_id ? "Update" : "Add"} Exam Type
+              </DialogTitle>
               <DialogDescription>
-                Create a new exam type for organizing your questions and exams
+                Create / Update exam type for organizing your questions and
+                exams
               </DialogDescription>
             </DialogHeader>
             <FormField
@@ -166,8 +219,14 @@ function AddType({
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit" disabled={submitMutate.isPending}>
-                {submitMutate.isPending && <Loading />} Save changes
+              <Button
+                type="submit"
+                disabled={updateMutate.isPending || createMutate.isPending}
+              >
+                {(updateMutate.isPending || createMutate.isPending) && (
+                  <Loading />
+                )}{" "}
+                Save
               </Button>
             </DialogFooter>
           </form>

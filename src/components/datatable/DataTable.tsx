@@ -28,7 +28,10 @@ import { useEffect, useState } from "react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  filters: Array<keyof TData>;
+  filters: {
+    name: string;
+    key: Partial<keyof TData>;
+  }[];
   rowSelection: Record<number, boolean>;
   setRowSelection: any;
 }
@@ -67,21 +70,21 @@ export function DataTable<TData, TValue>({
       <CardContent>
         <div className="flex justify-between border-b border-secondary mb-4">
           <div className="mb-4 flex items-center justify-end gap-4">
-            {filters.map((filterKey, index) => (
+            {Object.values(filters).map((filter, index) => (
               <Input
                 key={index}
-                placeholder={filterKey as string}
+                placeholder={filter.name}
                 value={
                   (table
-                    .getColumn(filterKey as string)
+                    .getColumn(filter.key as string)
                     ?.getFilterValue() as string) ?? ""
                 }
                 onChange={(event) =>
                   table
-                    .getColumn(filterKey as string)
+                    .getColumn(filter.key as string)
                     ?.setFilterValue(event.target.value)
                 }
-                id={`filter-${filterKey as string}`}
+                id={`filter-${filter.key as string}`}
                 className="max-w-sm"
               />
             ))}

@@ -112,6 +112,27 @@ export async function create_exam_type({
   }
 }
 
+export async function update_exam_type(id: number, data: object) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/faculty/exam-types/${id}`,
+      method: "POST",
+      isAuthorized: true,
+      body: data,
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unable to update exam type",
+    };
+  }
+}
+
 export async function delete_exam_type({
   exam_type_id,
 }: {

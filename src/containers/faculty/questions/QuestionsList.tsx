@@ -18,10 +18,10 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { ExamQuestion } from "@/types/exam";
 import Link from "next/link";
-import { DataTable } from "./datatable/Datatable";
 import { ExamQuestionColumns } from "./datatable/ExamQuestionColumns";
 import { useState } from "react";
 import CreateQuestionModal from "./CreateQuestionModal";
+import { DataTable } from "@/components/datatable/DataTable";
 
 export default function QuestionsList({
   exam_type_id,
@@ -43,7 +43,7 @@ export default function QuestionsList({
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const filters: Array<keyof ExamQuestion> = ["question_text"];
+  const filters = [{ name: "Question Text", key: "question_text" }];
 
   if (questions.isLoading) {
     return <Loading />;

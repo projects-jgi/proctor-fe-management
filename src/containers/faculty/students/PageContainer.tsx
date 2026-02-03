@@ -50,7 +50,10 @@ export default function PageContainer() {
           <div>Error loading data</div>
         ) : (
           <DataTable
-            filters={["name", "email"]}
+            filters={[
+              { name: "Name", key: "name" },
+              { name: "Email", key: "email" },
+            ]}
             columns={columns}
             data={data.data}
             rowSelection={rowSelection}
