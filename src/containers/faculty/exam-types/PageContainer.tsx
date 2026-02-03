@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import React from "react";
+import React, { useState } from "react";
 import AddType from "./AddType";
 import UpdateType from "./UpdateType";
 import { DeleteType } from "./DeleteType";
@@ -21,12 +21,16 @@ import { Faculty } from "@/types/users";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit, Plus } from "lucide-react";
+import { columns } from "./columns";
+import { DataTable } from "@/components/datatable/DataTable";
 
 type ExamTypeResponse = ExamType & {
   faculty: Faculty;
 };
 
 function PageContainer() {
+  const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
+
   const types = useQuery<Record<string, ExamTypeResponse[]>>({
     queryKey: ["faculty", "exam-types"],
     queryFn: async () => {
@@ -51,62 +55,25 @@ function PageContainer() {
     <div className="my-8 space-y-4">
       <section>{/* <HeroStats /> */}</section>
       <section>
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Manage Exam Types</h2>
+        <div className="flex items-center justify-end mb-4">
           <AddType>
             <Button variant="default">
               <Plus /> Add Exam Type
             </Button>
           </AddType>
         </div>
-        {types.data &&
-          Object.values(types.data)
-            .flat()
-            .map((type: ExamTypeResponse, index: number) => (
-              <Card key={index} className="mt-4">
-                <CardHeader className="gap-6">
-                  <CardTitle>
-                    {type.name}
-                    <Badge
-                      className="ms-2"
-                      variant={type.is_private ? "secondary" : "default"}
-                    >
-                      {type.is_private ? "Private" : "Public"}
-                    </Badge>
-                  </CardTitle>
-                  {type.description && (
-                    <CardDescription>{type.description}</CardDescription>
-                  )}
-                  <CardAction>
-                    <div className="flex items-center gap-2">
-                      {/* <UpdateType defaultValues={type} /> */}
-                      <AddType defaultValues={type} update_id={type.id}>
-                        <Button variant="outline">
-                          <Edit />
-                        </Button>
-                      </AddType>
-                      <DeleteType exam_type_id={type.id} />
-                    </div>
-                  </CardAction>
-                  <CardDescription>
-                    <div className="flex gap-6 text-sm">
-                      <div className="">
-                        <p className="font-semibold">Created By</p>
-                        <p>{type.faculty.name}</p>
-                      </div>
-                      <div className="">
-                        <p className="font-semibold">Created At</p>
-                        <p>{new Date(type.created_at).toLocaleDateString()}</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">Status</p>
-                        <p>Active</p>
-                      </div>
-                    </div>
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            ))}
+        <DataTable
+          setRowSelection={setRowSelection}
+          rowSelection={rowSelection}
+          columns={columns}
+          data={Object.values(types.data!).flat()}
+          filters={[
+            { name: "Name", key: "name" },
+            { name: "Description", key: "description" },
+            { name: "Faculty", key: "faculty_name" },
+            { name: "Visibility", key: "is_private" },
+          ]}
+        />
       </section>
     </div>
   );

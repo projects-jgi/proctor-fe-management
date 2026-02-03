@@ -30,7 +30,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   filters: {
     name: string;
-    key: Partial<keyof TData>;
+    key: string; // Partial<keyof TData>
   }[];
   rowSelection: Record<number, boolean>;
   setRowSelection: any;

@@ -44,7 +44,7 @@ export function DeleteType({ exam_type_id }: { exam_type_id: number }) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive">
+        <Button variant="ghost" className="text-destructive">
           <Trash />
         </Button>
       </AlertDialogTrigger>
