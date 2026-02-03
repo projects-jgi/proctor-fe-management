@@ -37,7 +37,10 @@ export default async function Page({ params }: { params: Params }) {
             )}
           </div>
         </div>
-        <FormCard defaultValues={exam_details.data} />
+        <FormCard
+          defaultValues={exam_details.data}
+          update_id={exam_details.data.id}
+        />
       </div>
     </>
   );

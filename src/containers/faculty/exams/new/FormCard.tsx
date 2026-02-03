@@ -41,13 +41,13 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  create_exam,
+  save_exam,
   create_exam_type_mapping,
   get_exam_types,
 } from "@/lib/server_api/faculty";
 import { ExamType } from "@/types/exam";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Equal, Percent, Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -96,13 +96,19 @@ function toLocalInputFormat(dateString: string) {
 
 export default function FormCard({
   defaultValues,
+  update_id,
 }: {
   defaultValues?: z.infer<typeof examSchema>;
+  update_id?: number;
 }) {
   const [examTypeValues, setExamTypeValues] = useState<Map<string, number>>(
     new Map(),
   );
   const queryClient = useQueryClient();
+  const create_mutation = useMutation({
+    mutationFn: ({ id, body }: { id?: number; body: object }) =>
+      save_exam({ id, body }),
+  });
 
   const examTypes = useQuery<{ [key: string]: ExamType[] }>({
     queryKey: ["faculty", "exam-types"],
@@ -150,7 +156,7 @@ export default function FormCard({
       return;
     }
 
-    const exam_type_mappings = [];
+    const exam_type_mappings: any = [];
 
     for (const [key, value] of examTypeValues.entries()) {
       exam_type_mappings.push({
@@ -162,27 +168,35 @@ export default function FormCard({
     data.start_time = new Date(data.start_time).toISOString();
     data.end_time = new Date(data.end_time).toISOString();
 
-    const response = await create_exam(data);
-    if (response.status) {
-      const exam_id = response.data.id;
+    toast.promise(
+      () =>
+        create_mutation
+          .mutateAsync({ id: update_id, body: data })
+          .then(async (response) => {
+            if (response.status) {
+              const exam_id = response.data.id;
 
-      const mapping_response = await create_exam_type_mapping(exam_id, {
-        mappings: exam_type_mappings,
-      });
+              const mapping_response = await create_exam_type_mapping(exam_id, {
+                mappings: exam_type_mappings,
+              });
 
-      if (!mapping_response.status) {
-        toast.error(
-          mapping_response.message || "Unable to create exam type mappings",
-        );
-        return;
-      }
-      toast.success(response.message || "Exam created successfully");
-      queryClient.invalidateQueries({
-        queryKey: ["faculty", "exam-types"],
-      });
-    } else {
-      toast.error(response.message || "Unable to create exam");
-    }
+              if (!mapping_response.status) {
+                return new Error();
+              }
+              queryClient.invalidateQueries({
+                queryKey: ["faculty", "exam-types"],
+              });
+              return response.message || "Exam Saved successfully";
+            } else {
+              return new Error(response.message || "Unable to create exam");
+            }
+          }),
+      {
+        loading: "Saving Exam...",
+        success: (msg) => msg,
+        error: (err) => err.message,
+      },
+    );
   }
 
   function addExamTypeMapping() {

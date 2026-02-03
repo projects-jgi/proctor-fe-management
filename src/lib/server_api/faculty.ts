@@ -181,10 +181,10 @@ export async function get_exam_type_questions({
   }
 }
 
-export async function create_exam(body: object) {
+export async function save_exam({ id, body }: { id?: number; body: object }) {
   try {
     const response = await Request({
-      url: process.env.BACKEND_HOST + "/api/exams",
+      url: process.env.BACKEND_HOST + `/api/exams/${id ? id : ""}`,
       method: "POST",
       isAuthorized: true,
       body: body,
@@ -199,6 +199,26 @@ export async function create_exam(body: object) {
     return {
       status: false,
       message: error.response?.data?.message || "Unable to create exam",
+    };
+  }
+}
+
+export async function delete_exam(exam_id: number) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/exams/${exam_id}`,
+      method: "DELETE",
+      isAuthorized: true,
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unable to delete exam",
     };
   }
 }

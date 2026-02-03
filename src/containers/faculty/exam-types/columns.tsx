@@ -36,7 +36,6 @@ export const columns: ColumnDef<ExamType>[] = [
       return <Badge variant="default">Public</Badge>;
     },
     filterFn: (row, columnId, filterValue) => {
-      console.log(row, columnId, filterValue);
       const value = row.getValue<boolean>(columnId);
       const search = String(filterValue).toLowerCase().trim();
 

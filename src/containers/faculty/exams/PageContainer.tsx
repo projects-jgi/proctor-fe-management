@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import HeroStats from "./HeroStats";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -19,8 +19,12 @@ import { useQuery } from "@tanstack/react-query";
 import { get_all_exams } from "@/lib/server_api/faculty";
 import { Exam } from "@/types/exam";
 import { cn } from "@/lib/utils";
+import { DataTable } from "@/components/datatable/DataTable";
+import { columns } from "./columns";
 
 function PageContainer() {
+  const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
+
   const exams = useQuery({
     queryKey: ["faculty", "exams"],
     queryFn: async () => {
@@ -32,6 +36,20 @@ function PageContainer() {
       }
     },
   });
+
+  if (exams.isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (exams.isError) {
+    return (
+      <div>
+        Error:{" "}
+        {exams.error instanceof Error ? exams.error.message : "Unknown error"}
+      </div>
+    );
+  }
+
   return (
     <div className="my-8 space-y-4">
       {/* <HeroStats /> */}
@@ -57,7 +75,7 @@ function PageContainer() {
                     "p-2 rounded",
                     exam.status
                       ? "bg-success text-success-foreground"
-                      : "bg-warning text-warning-foreground"
+                      : "bg-warning text-warning-foreground",
                   )}
                 >
                   {exam.status ? <Eye size={15} /> : <EyeOff size={15} />}
@@ -102,13 +120,25 @@ function PageContainer() {
                         <Edit />
                       </Button>
                     </Link>
-                    <DeleteExam />
+                    <DeleteExam exam_id={exam.id} />
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
         ))}
+      </section>
+      <section>
+        <DataTable
+          data={exams.data}
+          rowSelection={rowSelection}
+          setRowSelection={setRowSelection}
+          filters={[
+            { name: "Exam Name", key: "name" },
+            { name: "Status", key: "status" },
+          ]}
+          columns={columns}
+        />
       </section>
     </div>
   );
