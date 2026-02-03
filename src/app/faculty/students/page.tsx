@@ -1,6 +1,11 @@
 import HeroBanner from "@/components/HeroBanner";
 import PageContainer from "@/containers/faculty/students/PageContainer";
 
+export const metadata = {
+  title: "Student Management",
+  description: "Manage students in your department",
+};
+
 export default function Page() {
   return (
     <>

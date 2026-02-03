@@ -66,10 +66,13 @@ function Topbar() {
           <DropdownMenuContent align="end">
             <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Button variant={"link"} className="text-destructive" onClick={handleLogout}>
-                Logout
-              </Button>
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className="text-destructive"
+            >
+              {/* <Button variant={"link"} className="text-destructive" onClick={handleLogout}> */}
+              Logout
+              {/* </Button> */}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
