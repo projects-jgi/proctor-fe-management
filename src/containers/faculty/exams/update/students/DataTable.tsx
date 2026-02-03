@@ -36,6 +36,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base_columns } from "./base_columns";
 import { Toggle } from "@/components/ui/toggle";
 import { edit_columns } from "./edit_columns";
+import { Badge } from "@/components/ui/badge";
 
 interface DataTableProps<TData, TValue> {
   data: TData[];
@@ -50,7 +51,7 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const queryClient = useQueryClient();
   const [currentColumns, setCurrentColumns] = useState<ColumnDef<TData, any>[]>(
-    base_columns as ColumnDef<TData, any>[]
+    base_columns as ColumnDef<TData, any>[],
   );
   const [currentData, setCurrentData] = useState(data);
   const [tableType, setTableType] = useState<"view" | "edit">("view");
@@ -66,8 +67,8 @@ export function DataTable<TData, TValue>({
       setCurrentColumns(base_columns as ColumnDef<TData, any>[]);
       setCurrentData(
         Object.values(mapped_student_exam_data).map(
-          (student: any) => student.student
-        )
+          (student: any) => student.student,
+        ),
       );
       // setCurrentData(data);
     }
@@ -77,8 +78,8 @@ export function DataTable<TData, TValue>({
     if (mapped_student_exam_data) {
       setRowSelection(
         Object.fromEntries(
-          Object.keys(mapped_student_exam_data).map((key) => [key, true])
-        )
+          Object.keys(mapped_student_exam_data).map((key) => [key, true]),
+        ),
       );
     }
   }, [mapped_student_exam_data]);
@@ -126,7 +127,7 @@ export function DataTable<TData, TValue>({
         loading: "Mapping Students to exam...",
         success: (res) => res,
         error: (err) => err.message,
-      }
+      },
     );
   }
 
@@ -136,19 +137,17 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="mb-4 flex items-end">
-        <Toggle variant="outline" className="ms-auto" onClick={toggleTableType}>
-          {tableType === "view" ? (
-            <>
-              <Edit />
-              Edit Mappings
-            </>
-          ) : (
-            <>
-              <Eye />
-              View Mappings
-            </>
-          )}
+      <div className="mb-4 flex justify-between items-center">
+        <h2 className="text-lg font-semibold">
+          Mapped Students
+          <span className="ms-2">
+            <Badge variant={tableType === "view" ? "secondary" : "destructive"}>
+              {tableType === "view" ? "View" : "Editing"}
+            </Badge>
+          </span>
+        </h2>
+        <Toggle variant="default" className="ms-auto" onClick={toggleTableType}>
+          <Edit /> Edit Mappings
         </Toggle>
       </div>
       <Card>
@@ -190,7 +189,7 @@ export function DataTable<TData, TValue>({
                             ? null
                             : flexRender(
                                 header.column.columnDef.header,
-                                header.getContext()
+                                header.getContext(),
                               )}
                         </TableHead>
                       ))}
@@ -216,7 +215,7 @@ export function DataTable<TData, TValue>({
                           <TableCell key={cell.id}>
                             {flexRender(
                               cell.column.columnDef.cell,
-                              cell.getContext()
+                              cell.getContext(),
                             )}
                           </TableCell>
                         ))}

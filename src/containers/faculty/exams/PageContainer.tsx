@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import HeroStats from "./HeroStats";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Edit, Eye, EyeOff, Globe, Plus } from "lucide-react";
+import { Edit, Eye, EyeOff, Globe, Plus, Rows3, Table } from "lucide-react";
 import {
   Card,
   CardAction,
@@ -21,6 +21,7 @@ import { Exam } from "@/types/exam";
 import { cn } from "@/lib/utils";
 import { DataTable } from "@/components/datatable/DataTable";
 import { columns } from "./columns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function PageContainer() {
   const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
@@ -66,79 +67,95 @@ function PageContainer() {
             </Link>
           </Button>
         </div>
-        {exams.data?.map((exam: Exam, index: number) => (
-          <Card className="mt-4" key={index}>
-            <CardHeader>
-              <div className="flex gap-2 items-center">
-                <div
-                  className={cn(
-                    "p-2 rounded",
-                    exam.status
-                      ? "bg-success text-success-foreground"
-                      : "bg-warning text-warning-foreground",
-                  )}
-                >
-                  {exam.status ? <Eye size={15} /> : <EyeOff size={15} />}
-                </div>
-                <div>
-                  <CardTitle className="mb-2">{exam.name}</CardTitle>
-                  <CardDescription>
-                    <Badge>{exam.status ? "Published" : "Draft"}</Badge>
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-8 items-start text-sm">
-                <div>
-                  <p className="text-muted-foreground mb-1">Duration</p>
-                  <p>{exam.duration_in_minutes} Min</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground mb-1">Total Students</p>
-                  <p>0</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground mb-1">
-                    Start Date & time
-                  </p>
-                  <p>{new Date(exam.start_time).toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground mb-1">End Date & time</p>
-                  <p>{new Date(exam.end_time).toLocaleString()}</p>
-                </div>
-              </div>
-              <div className="mt-6 text-sm">
-                <div className="flex justify-between">
-                  <p className="text-muted-foreground">
-                    Created At: {new Date(exam.created_at).toLocaleString()}
-                  </p>
+        <Tabs defaultValue="table">
+          <TabsList>
+            <TabsTrigger value="table">
+              <Table />
+            </TabsTrigger>
+            <TabsTrigger value="card">
+              <Rows3 />
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="table">
+            <DataTable
+              data={exams.data}
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              filters={[
+                { name: "Exam Name", key: "name" },
+                { name: "Status", key: "status" },
+              ]}
+              columns={columns}
+            />
+          </TabsContent>
+          <TabsContent value="card">
+            {exams.data?.map((exam: Exam, index: number) => (
+              <Card className="mt-4" key={index}>
+                <CardHeader>
                   <div className="flex gap-2 items-center">
-                    <Link href={`/faculty/exams/update/${exam.id}`}>
-                      <Button variant="outline">
-                        <Edit />
-                      </Button>
-                    </Link>
-                    <DeleteExam exam_id={exam.id} />
+                    <div
+                      className={cn(
+                        "p-2 rounded",
+                        exam.status
+                          ? "bg-success text-success-foreground"
+                          : "bg-warning text-warning-foreground",
+                      )}
+                    >
+                      {exam.status ? <Eye size={15} /> : <EyeOff size={15} />}
+                    </div>
+                    <div>
+                      <CardTitle className="mb-2">{exam.name}</CardTitle>
+                      <CardDescription>
+                        <Badge>{exam.status ? "Published" : "Draft"}</Badge>
+                      </CardDescription>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </section>
-      <section>
-        <DataTable
-          data={exams.data}
-          rowSelection={rowSelection}
-          setRowSelection={setRowSelection}
-          filters={[
-            { name: "Exam Name", key: "name" },
-            { name: "Status", key: "status" },
-          ]}
-          columns={columns}
-        />
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-8 items-start text-sm">
+                    <div>
+                      <p className="text-muted-foreground mb-1">Duration</p>
+                      <p>{exam.duration_in_minutes} Min</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground mb-1">
+                        Total Students
+                      </p>
+                      <p>0</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground mb-1">
+                        Start Date & time
+                      </p>
+                      <p>{new Date(exam.start_time).toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground mb-1">
+                        End Date & time
+                      </p>
+                      <p>{new Date(exam.end_time).toLocaleString()}</p>
+                    </div>
+                  </div>
+                  <div className="mt-6 text-sm">
+                    <div className="flex justify-between">
+                      <p className="text-muted-foreground">
+                        Created At: {new Date(exam.created_at).toLocaleString()}
+                      </p>
+                      <div className="flex gap-2 items-center">
+                        <Link href={`/faculty/exams/update/${exam.id}`}>
+                          <Button variant="outline">
+                            <Edit />
+                          </Button>
+                        </Link>
+                        <DeleteExam exam_id={exam.id} />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+        </Tabs>
       </section>
     </div>
   );

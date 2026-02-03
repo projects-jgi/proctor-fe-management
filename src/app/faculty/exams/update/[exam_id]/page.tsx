@@ -15,8 +15,6 @@ export default async function Page({ params }: { params: Params }) {
 
   const exam_details = await get_exam_details({ exam_id: parseInt(exam_id) });
 
-  console.log(exam_details);
-
   return (
     <>
       <HeroBanner
@@ -32,9 +30,10 @@ export default async function Page({ params }: { params: Params }) {
                 Manage Students
               </Button>
             </Link>
-            {exam_details.data.status == 0 && (
-              <PublishDialog exam_id={parseInt(exam_id)} />
-            )}
+            <PublishDialog
+              exam_id={parseInt(exam_id)}
+              unpublish={exam_details.data.status}
+            />
           </div>
         </div>
         <FormCard
