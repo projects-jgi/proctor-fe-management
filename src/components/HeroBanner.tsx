@@ -9,8 +9,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React from "react";
+import {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import Link from "next/link";
 
 function HeroBanner({
   title,
@@ -21,32 +31,45 @@ function HeroBanner({
   description: string;
   showBackButton?: boolean;
 }) {
-  const router = useRouter();
+  const pathname = usePathname();
+  const segments = pathname.split("/").filter(Boolean);
+  const crumbs = segments.map((segment, index) => {
+    const href = "/" + segments.slice(0, index + 1).join("/");
 
+    const label =
+      segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
+
+    return { href, label };
+  });
+
+  console.log(crumbs);
   return (
-    <div className="w-full bg-primary">
-      <Card className="text-primary-foreground bg-transparent border-0 shadow-none container mx-auto">
-        <CardHeader>
-          <div className="flex items-start">
-            {showBackButton && (
-              <Button size="icon-lg" onClick={() => router.back()}>
-                <ArrowLeft />
-              </Button>
-            )}
-            <div className="flex flex-col gap-2">
-              <CardTitle className="text-2xl">{title}</CardTitle>
-              <CardDescription className="text-primary-foreground text-lg">
-                {description}
-              </CardDescription>
-            </div>
-          </div>
-          {/* <CardAction>
-                        <Button variant={"secondary"} className="text-md">
-                        Get started
-                        </Button>
-                    </CardAction> */}
-        </CardHeader>
-      </Card>
+    <div className="w-full container py-4 border-b">
+      <Breadcrumb className="mb-4">
+        <BreadcrumbList>
+          {Array.from(crumbs).map((crumb, index) => {
+            const isLast = index == crumbs.length - 1;
+            if (isLast) {
+              return (
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                </BreadcrumbItem>
+              );
+            }
+            return (
+              <>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href={crumb.href}>{crumb.label}</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+              </>
+            );
+          })}
+        </BreadcrumbList>
+      </Breadcrumb>
+      <h2 className="text-2xl font-bold">{title}</h2>
     </div>
   );
 }
