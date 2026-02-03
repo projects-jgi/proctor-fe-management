@@ -42,7 +42,7 @@ export default function PageContainer() {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <div className="w-20 aspect-square bg-primary rounded-full flex items-center justify-center text-2xl font-bold text-black">
-                S
+                {user_query.data.name.charAt(0).toUpperCase()}
               </div>
               <div className="flex flex-col gap-1">
                 <h2 className="text-2xl font-bold">{user_query.data.name}</h2>

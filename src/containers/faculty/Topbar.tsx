@@ -19,7 +19,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { logout } from "@/lib/server_api/auth";
-import { User } from "lucide-react";
+import { Power, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -64,14 +64,14 @@ function Topbar() {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={handleLogout}
-              className="text-destructive"
-            >
+            <DropdownMenuItem asChild>
+              <Link href={"/faculty/profile"}>
+                <User /> Profile
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               {/* <Button variant={"link"} className="text-destructive" onClick={handleLogout}> */}
-              Logout
+              <Power /> Sign Out
               {/* </Button> */}
             </DropdownMenuItem>
           </DropdownMenuContent>
