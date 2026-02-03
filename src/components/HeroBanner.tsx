@@ -51,20 +51,20 @@ function HeroBanner({
             const isLast = index == crumbs.length - 1;
             if (isLast) {
               return (
-                <BreadcrumbItem>
+                <BreadcrumbItem key={index}>
                   <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
                 </BreadcrumbItem>
               );
             }
             return (
-              <>
+              <React.Fragment key={index}>
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
                     <Link href={crumb.href}>{crumb.label}</Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
-              </>
+              </React.Fragment>
             );
           })}
         </BreadcrumbList>

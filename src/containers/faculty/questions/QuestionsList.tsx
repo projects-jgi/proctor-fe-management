@@ -64,7 +64,7 @@ export default function QuestionsList({
           </Button>
         </Link>
         <Button asChild>
-          <Link href={`/faculty/questions/create?type=${exam_type_id}`}>
+          <Link href={`/faculty/questions/${exam_type_id}/create`}>
             <Plus />
             <span>Create Question</span>
           </Link>

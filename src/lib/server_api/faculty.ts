@@ -488,3 +488,49 @@ export async function delete_student({
     };
   }
 }
+
+export async function get_question(question_id: number) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/questions/${question_id}`,
+      isAuthorized: true,
+    });
+
+    return {
+      status: true,
+      data: response.data.data,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unable to fetch question",
+    };
+  }
+}
+
+export async function update_question({
+  question_id,
+  body,
+}: {
+  question_id: number;
+  body: object;
+}) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/questions/${question_id}`,
+      method: "POST",
+      isAuthorized: true,
+      body: body,
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unable to update question",
+    };
+  }
+}

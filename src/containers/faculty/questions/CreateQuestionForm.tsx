@@ -1,3 +1,5 @@
+"use client";
+
 import Loading from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -15,68 +17,141 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { create_exam, create_exam_question } from "@/lib/server_api/faculty";
+import {
+  create_exam_question,
+  update_question,
+} from "@/lib/server_api/faculty";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import React, { useRef } from "react";
+import React, { use, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+
+const booleanFromNumber = z.preprocess(
+  (val) => (val === 1 ? true : val === 0 ? false : val),
+  z.boolean(),
+);
 
 const questionSchema = z.object({
   question_text: z
     .string()
     .min(3, "Question text must be at least 3 characters"),
   option_1: z.string().min(1, "At least one option is required"),
-  option_2: z.string().optional(),
-  option_3: z.string().optional(),
-  option_4: z.string().optional(),
-  option_5: z.string().optional(),
-  is_correct_1: z.boolean().default(false).optional(),
-  is_correct_2: z.boolean().default(false).optional(),
-  is_correct_3: z.boolean().default(false).optional(),
-  is_correct_4: z.boolean().default(false).optional(),
-  is_correct_5: z.boolean().default(false).optional(),
-  explanation_1: z.string().optional(),
-  explanation_2: z.string().optional(),
-  explanation_3: z.string().optional(),
-  explanation_4: z.string().optional(),
-  explanation_5: z.string().optional(),
+  option_2: z
+    .string()
+    .nullable()
+    .transform((val) => val ?? "")
+    .optional(),
+  option_3: z
+    .string()
+    .nullable()
+    .transform((val) => val ?? "")
+    .optional(),
+  option_4: z
+    .string()
+    .nullable()
+    .transform((val) => val ?? "")
+    .optional(),
+  option_5: z
+    .string()
+    .nullable()
+    .transform((val) => val ?? "")
+    .optional(),
+  is_correct_1: booleanFromNumber,
+  is_correct_2: booleanFromNumber,
+  is_correct_3: booleanFromNumber,
+  is_correct_4: booleanFromNumber,
+  is_correct_5: booleanFromNumber,
+  explanation_1: z
+    .string()
+    .nullable()
+    .transform((val) => val ?? ""),
+  explanation_2: z
+    .string()
+    .nullable()
+    .transform((val) => val ?? ""),
+  explanation_3: z
+    .string()
+    .nullable()
+    .transform((val) => val ?? ""),
+  explanation_4: z
+    .string()
+    .nullable()
+    .transform((val) => val ?? ""),
+  explanation_5: z
+    .string()
+    .nullable()
+    .transform((val) => val ?? ""),
   score: z.coerce.number().min(1),
 });
 
-export default function CreateQuestionForm({ exam_id }: { exam_id: number }) {
-  const submitMutate = useMutation({
+const default_values = {
+  question_text: "",
+  option_1: "",
+  option_2: "",
+  option_3: "",
+  option_4: "",
+  option_5: "",
+  is_correct_1: false,
+  is_correct_2: false,
+  is_correct_3: false,
+  is_correct_4: false,
+  is_correct_5: false,
+  explanation_1: "",
+  explanation_2: "",
+  explanation_3: "",
+  explanation_4: "",
+  explanation_5: "",
+  score: 1,
+};
+
+export default function CreateQuestionForm({
+  defaultValues = default_values,
+  exam_id,
+  question_id,
+}: {
+  defaultValues?: any;
+  question_id?: number;
+  exam_id: number;
+}) {
+  const create_mutate = useMutation({
     mutationFn: create_exam_question,
+  });
+
+  const update_mutate = useMutation({
+    mutationFn: update_question,
   });
 
   const form = useForm({
     resolver: zodResolver(questionSchema),
-    defaultValues: {
-      question_text: "",
-      option_1: "",
-      option_2: "",
-      option_3: "",
-      option_4: "",
-      option_5: "",
-      is_correct_1: false,
-      is_correct_2: false,
-      is_correct_3: false,
-      is_correct_4: false,
-      is_correct_5: false,
-      explanation_1: "",
-      explanation_2: "",
-      explanation_3: "",
-      explanation_4: "",
-      explanation_5: "",
-      score: 1,
-    },
+    defaultValues,
   });
 
-  async function handleSubmit(data: z.infer<typeof questionSchema>) {
+  function updateQuestion(data: z.infer<typeof questionSchema>) {
     toast.promise(
       () =>
-        submitMutate
+        update_mutate
+          .mutateAsync({ body: data, question_id: question_id! })
+          .then((response) => {
+            if (response.status) {
+              return response.message;
+            } else {
+              throw new Error(response.message);
+            }
+          }),
+      {
+        loading: "Updating question...",
+        success: (message) => message || "Question updated successfully",
+        error: (err) => "Error: " + (err.message || "Something went wrong"),
+      },
+    );
+  }
+
+  function createQuestion(data: z.infer<typeof questionSchema>) {
+    toast.promise(
+      () =>
+        create_mutate
           .mutateAsync({ exam_type_id: exam_id, body: data })
           .then((response) => {
             if (response.status) {
@@ -93,13 +168,21 @@ export default function CreateQuestionForm({ exam_id }: { exam_id: number }) {
     );
   }
 
+  async function handleSubmit(data: z.infer<typeof questionSchema>) {
+    if (question_id) {
+      updateQuestion(data);
+    } else {
+      createQuestion(data);
+    }
+  }
+
   return (
     <Card>
       <CardContent>
         <form onSubmit={form.handleSubmit(handleSubmit)}>
           <FieldGroup>
             <FieldSet>
-              <FieldGroup>
+              <FieldGroup className="grid grid-cols-1 lg:grid-cols-2">
                 <Controller
                   control={form.control}
                   name="question_text"
@@ -119,7 +202,6 @@ export default function CreateQuestionForm({ exam_id }: { exam_id: number }) {
                     </Field>
                   )}
                 />
-                <FieldSeparator />
                 <Controller
                   control={form.control}
                   name="score"
@@ -171,8 +253,11 @@ export default function CreateQuestionForm({ exam_id }: { exam_id: number }) {
                             <Input
                               placeholder="Option Text"
                               aria-invalid={fieldState.invalid}
-                              defaultValue={field.value as string}
-                              value={field.value as string}
+                              value={
+                                field.value == null
+                                  ? ""
+                                  : (field.value as string)
+                              }
                               onChange={field.onChange}
                               onBlur={field.onBlur}
                               id={`option_${index + 1}`}
@@ -199,7 +284,11 @@ export default function CreateQuestionForm({ exam_id }: { exam_id: number }) {
                             </FieldLabel>
                             <Textarea
                               placeholder="Option Explanation"
-                              value={field.value as string}
+                              value={
+                                field.value === null
+                                  ? ""
+                                  : (field.value as string)
+                              }
                               onChange={field.onChange}
                               onBlur={field.onBlur}
                             ></Textarea>
@@ -249,8 +338,14 @@ export default function CreateQuestionForm({ exam_id }: { exam_id: number }) {
               ))}
           </FieldGroup>
           <div className="flex justify-end mt-4">
-            <Button type="submit" disabled={submitMutate.isPending}>
-              {submitMutate.isPending && <Loading />} Create Question
+            <Button
+              type="submit"
+              disabled={create_mutate.isPending || update_mutate.isPending}
+            >
+              {create_mutate.isPending || update_mutate.isPending ? (
+                <Loading />
+              ) : null}{" "}
+              {question_id ? "Update" : "Create"} Question
             </Button>
           </div>
         </form>

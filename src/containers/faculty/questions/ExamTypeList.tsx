@@ -24,7 +24,7 @@ function ExamTypeList({ examTypes }: { examTypes: ExamTypeResponse[] }) {
             </CardTitle>
             <Button>
               <Link
-                href={`?type=${examType.id}`}
+                href={`/faculty/questions/${examType.id}`}
                 className="inline-flex items-center gap-2"
               >
                 View <ArrowRight />

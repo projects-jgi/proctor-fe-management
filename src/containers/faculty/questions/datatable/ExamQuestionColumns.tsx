@@ -1,9 +1,12 @@
 "use client";
 
 import { DataTableColumnHeader } from "@/components/datatable/DataTableColumnHeader";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ExamQuestion } from "@/types/exam";
 import { ColumnDef } from "@tanstack/react-table";
+import { Edit } from "lucide-react";
+import Link from "next/link";
 
 export const ExamQuestionColumns: ColumnDef<ExamQuestion>[] = [
   {
@@ -37,5 +40,19 @@ export const ExamQuestionColumns: ColumnDef<ExamQuestion>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Score" />
     ),
+  },
+  {
+    accessorKey: "Actions",
+    cell: ({ row }) => {
+      return (
+        <Button asChild variant={"ghost"} className="text-primary">
+          <Link
+            href={`/faculty/questions/${row.original.exam_type_id}/edit/${row.original.id}`}
+          >
+            <Edit />
+          </Link>
+        </Button>
+      );
+    },
   },
 ];
