@@ -43,6 +43,8 @@ export default function QuestionsList({
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
+  const filters: Array<keyof ExamQuestion> = ["question_text"];
+
   if (questions.isLoading) {
     return <Loading />;
   }
@@ -67,16 +69,14 @@ export default function QuestionsList({
             <span>Create Question</span>
           </Link>
         </Button>
-        <CreateQuestionModal />
       </div>
-      <div className="border border-secondary rounded">
-        <DataTable
-          rowSelection={rowSelection}
-          setRowSelection={setRowSelection}
-          columns={ExamQuestionColumns}
-          data={questions.data}
-        />
-      </div>
+      <DataTable
+        filters={filters}
+        rowSelection={rowSelection}
+        setRowSelection={setRowSelection}
+        columns={ExamQuestionColumns}
+        data={questions.data}
+      />
     </div>
   );
 }
