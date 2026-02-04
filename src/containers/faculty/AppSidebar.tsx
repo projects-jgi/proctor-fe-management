@@ -77,7 +77,7 @@ function AppSidebar() {
   return (
     <Sidebar variant="sidebar">
       <SidebarHeader className="h-16 inline-flex items-center justify-center">
-        <Link href={"/student"} className="">
+        <Link href={"/faculty"} className="">
           <Image
             src="/assets/images/Jain-logo.png"
             alt="Jain Logo"
