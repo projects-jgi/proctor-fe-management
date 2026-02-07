@@ -15,13 +15,14 @@ import Loading from "@/components/Loading";
 import { useQuery } from "@tanstack/react-query";
 import BulkUpload from "./BulkUpload";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Delete, Plus } from "lucide-react";
 import { ExamQuestion } from "@/types/exam";
 import Link from "next/link";
 import { ExamQuestionColumns } from "./datatable/ExamQuestionColumns";
 import { useState } from "react";
 import CreateQuestionModal from "./CreateQuestionModal";
 import { DataTable } from "@/components/datatable/DataTable";
+import { DeleteQuestionsModal } from "./DeleteQuestionsModal";
 
 export default function QuestionsList({
   exam_type_id,
@@ -56,19 +57,29 @@ export default function QuestionsList({
   return (
     <div className="w-full">
       <div className="flex justify-end gap-2 mb-4">
-        <BulkUpload exam_type_id={exam_type_id} />
-        <Link href="/faculty/exam-types">
-          <Button variant={"outline"}>
-            <Plus />
-            <span>Add Exam Type</span>
-          </Button>
-        </Link>
-        <Button asChild>
-          <Link href={`/faculty/questions/${exam_type_id}/create`}>
-            <Plus />
-            <span>Create Question</span>
-          </Link>
-        </Button>
+        {Object.keys(rowSelection).length > 0 && (
+          <DeleteQuestionsModal
+            question_ids={Object.keys(rowSelection).map(Number)}
+            exam_id={exam_type_id}
+          />
+        )}
+        {Object.keys(rowSelection).length === 0 && (
+          <>
+            <BulkUpload exam_type_id={exam_type_id} />
+            <Link href="/faculty/exam-types">
+              <Button variant={"outline"}>
+                <Plus />
+                <span>Add Exam Type</span>
+              </Button>
+            </Link>
+            <Button asChild>
+              <Link href={`/faculty/questions/${exam_type_id}/create`}>
+                <Plus />
+                <span>Create Question</span>
+              </Link>
+            </Button>
+          </>
+        )}
       </div>
       <DataTable
         filters={filters}

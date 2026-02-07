@@ -7,6 +7,7 @@ import { ExamQuestion } from "@/types/exam";
 import { ColumnDef } from "@tanstack/react-table";
 import { Edit } from "lucide-react";
 import Link from "next/link";
+import { DeleteQuestionsModal } from "../DeleteQuestionsModal";
 
 export const ExamQuestionColumns: ColumnDef<ExamQuestion>[] = [
   {
@@ -45,13 +46,20 @@ export const ExamQuestionColumns: ColumnDef<ExamQuestion>[] = [
     accessorKey: "Actions",
     cell: ({ row }) => {
       return (
-        <Button asChild variant={"ghost"} className="text-primary">
-          <Link
-            href={`/faculty/questions/${row.original.exam_type_id}/edit/${row.original.id}`}
-          >
-            <Edit />
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button asChild variant={"ghost"} className="text-primary">
+            <Link
+              href={`/faculty/questions/${row.original.exam_type_id}/edit/${row.original.id}`}
+            >
+              <Edit />
+            </Link>
+          </Button>
+          <DeleteQuestionsModal
+            variant={"icon"}
+            question_ids={[row.original.id]}
+            exam_id={row.original.exam_type_id}
+          />
+        </div>
       );
     },
   },

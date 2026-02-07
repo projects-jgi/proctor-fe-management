@@ -302,6 +302,55 @@ export async function create_exam_question({
   }
 }
 
+export async function delete_exam_question(question_id: number) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/questions/${question_id}`,
+      method: "DELETE",
+      isAuthorized: true,
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message:
+        error.response?.data?.message || "Unable to delete exam question",
+    };
+  }
+}
+
+export async function delete_exam_question_multiple({
+  question_ids,
+}: {
+  question_ids: number[];
+}) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/questions`,
+      method: "DELETE",
+      isAuthorized: true,
+      body: {
+        question_ids: question_ids,
+      },
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message:
+        error.response?.data?.message || "Unable to delete exam questions",
+    };
+  }
+}
+
 export async function get_exam_details({ exam_id }: { exam_id: number }) {
   try {
     const response = await Request({
