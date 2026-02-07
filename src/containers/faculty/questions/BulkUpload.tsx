@@ -15,9 +15,9 @@ import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { upload_exam_questions } from "@/lib/server_api/faculty";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Upload } from "lucide-react";
-import React from "react";
+import React, { useRef } from "react";
 import { Controller, Form, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -34,22 +34,47 @@ const uploadForm = z.object({
 });
 
 function BulkUpload({ exam_type_id }: { exam_type_id: number }) {
+  const closeBtn = useRef<HTMLButtonElement>(null);
+
   const form = useForm<z.infer<typeof uploadForm>>({
     resolver: zodResolver(uploadForm),
   });
 
   const query_client = useQueryClient();
+  const upload_mutate = useMutation({
+    mutationFn: ({
+      exam_type_id,
+      file,
+    }: {
+      exam_type_id: number;
+      file: File;
+    }) => upload_exam_questions(exam_type_id, file),
+  });
 
   async function handleUpload(values: z.infer<typeof uploadForm>) {
-    const response = await upload_exam_questions(exam_type_id, values.file);
-    if (response.status) {
-      toast.success("Questions uploaded successfully");
-      query_client.invalidateQueries({
-        queryKey: ["faculty", "exam_types", exam_type_id, "questions"],
-      });
-    } else {
-      toast.error("Failed to upload questions: " + response.message);
-    }
+    toast.promise(
+      () =>
+        upload_mutate
+          .mutateAsync({ exam_type_id, file: values.file })
+          .then((response) => {
+            if (response.status) {
+              return response.message;
+            } else {
+              return new Error(response.message);
+            }
+          }),
+      {
+        loading: "Uploading questions...",
+        success: (message) => {
+          query_client.invalidateQueries({
+            queryKey: ["faculty", "exam_types", exam_type_id, "questions"],
+          });
+          closeBtn.current?.click();
+          return message;
+        },
+        error: (err) => "Failed to upload questions: " + err.message,
+      },
+    );
   }
 
   return (
@@ -88,7 +113,9 @@ function BulkUpload({ exam_type_id }: { exam_type_id: number }) {
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Close</Button>
+              <Button variant="outline" ref={closeBtn}>
+                Close
+              </Button>
             </DialogClose>
             <Button type="submit">Upload</Button>
           </DialogFooter>

@@ -262,6 +262,7 @@ export async function upload_exam_questions(exam_type_id: number, file: File) {
     return {
       status: true,
       data: response.data.data,
+      message: response.data.message,
     };
   } catch (error: any) {
     return {
