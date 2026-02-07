@@ -49,6 +49,7 @@ import { ExamType } from "@/types/exam";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Equal, Percent, Plus, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -101,6 +102,8 @@ export default function FormCard({
   defaultValues?: z.infer<typeof examSchema>;
   update_id?: number;
 }) {
+  const router = useRouter();
+
   const [examTypeValues, setExamTypeValues] = useState<Map<string, number>>(
     new Map(),
   );
@@ -186,14 +189,23 @@ export default function FormCard({
               queryClient.invalidateQueries({
                 queryKey: ["faculty", "exam-types"],
               });
-              return response.message || "Exam Saved successfully";
+
+              return {
+                exam_id,
+                message: response.message || "Exam Saved successfully",
+              };
             } else {
               return new Error(response.message || "Unable to create exam");
             }
           }),
       {
         loading: "Saving Exam...",
-        success: (msg) => msg,
+        success: (res: any) => {
+          console.log("Response: ", res);
+          router.push(`/faculty/exams/${res.exam_id}`);
+
+          return res.message;
+        },
         error: (err) => err.message,
       },
     );

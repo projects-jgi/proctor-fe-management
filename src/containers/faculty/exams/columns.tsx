@@ -84,7 +84,7 @@ export const columns: ColumnDef<Exam>[] = [
       const type = row.original;
       return (
         <div className="flex items-center gap-2">
-          <Link href={`/faculty/exams/update/${type.id}`}>
+          <Link href={`/faculty/exams/${type.id}`}>
             <Button variant="outline">
               <Edit />
             </Button>

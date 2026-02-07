@@ -47,7 +47,7 @@ const addTypeSchema = z.object({
     .transform((val) => val ?? "")
     .nullable()
     .optional(),
-  is_private: z.boolean().nullable(),
+  is_private: z.boolean().nullable().optional(),
 });
 
 function AddType({
@@ -63,7 +63,8 @@ function AddType({
   const cancelBtnRef = useRef<HTMLButtonElement>(null);
 
   const createMutate = useMutation({
-    mutationFn: create_exam_type,
+    mutationFn: (values: z.infer<typeof addTypeSchema>) =>
+      create_exam_type(values),
   });
 
   const updateMutate = useMutation({
@@ -193,7 +194,8 @@ function AddType({
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>Description</FieldLabel>
                   <Textarea
-                    {...field}
+                    value={field.value || ""}
+                    onChange={field.onChange}
                     id={field.name}
                     aria-invalid={fieldState.invalid}
                   />
@@ -212,7 +214,7 @@ function AddType({
                   orientation="horizontal"
                 >
                   <Checkbox
-                    checked={field.value}
+                    checked={field.value ?? false}
                     onCheckedChange={field.onChange}
                     id={field.name}
                   />

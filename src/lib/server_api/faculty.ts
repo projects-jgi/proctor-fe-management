@@ -85,8 +85,8 @@ export async function create_exam_type({
   is_private,
 }: {
   name: string;
-  description?: string | undefined;
-  is_private?: boolean | undefined;
+  description?: string | null | undefined;
+  is_private?: boolean | null | undefined;
 }) {
   try {
     const response = await Request({
