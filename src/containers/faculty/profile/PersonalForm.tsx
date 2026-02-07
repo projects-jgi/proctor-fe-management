@@ -95,7 +95,12 @@ export default function PersonalForm({
                 >
                   Email Address
                 </FieldLabel>
-                <Input {...field} name="email" id={field.name} />
+                <Input
+                  value={field.value}
+                  name="email"
+                  id={field.name}
+                  disabled
+                />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}

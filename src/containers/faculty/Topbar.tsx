@@ -47,7 +47,7 @@ function Topbar() {
             </BreadcrumbItem>
             <BreadcrumbSeparator className="hidden md:block" /> */}
             <BreadcrumbItem>
-              <BreadcrumbPage>Dashboard</BreadcrumbPage>
+              <BreadcrumbPage>Faculty Dashboard</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
