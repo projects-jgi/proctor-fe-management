@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Plus } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 
 import React, { useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,18 +26,28 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { create_exam_type, update_exam_type } from "@/lib/server_api/faculty";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Loading from "@/components/Loading";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 
 const addTypeSchema = z.object({
   name: z.string().min(1, "Exam type name is required"),
-  description: z.string().optional(),
-  is_private: z.boolean().optional(),
+  description: z
+    .string()
+    .transform((val) => val ?? "")
+    .nullable()
+    .optional(),
+  is_private: z.boolean().nullable(),
 });
 
 function AddType({
@@ -157,60 +167,64 @@ function AddType({
                 exams
               </DialogDescription>
             </DialogHeader>
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="name">Exam Type Name</FormLabel>
-                  <FormControl>
+            <FieldGroup>
+              <Controller
+                control={form.control}
+                name="name"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Exam Type Name</FieldLabel>
                     <Input
-                      id="name"
                       {...field}
-                      placeholder="e.g., Verbal, Technical, Reasoning, etc"
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+            <Controller
               control={form.control}
               name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="description">Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      id="description"
-                      {...field}
-                      placeholder="Type your description here."
-                    />
-                  </FormControl>
-                </FormItem>
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Description</FieldLabel>
+                  <Textarea
+                    {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
               )}
             />
-            <FormField
+            <Controller
               control={form.control}
               name="is_private"
-              render={({ field }) => (
-                <FormItem className="flex">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      id="is_private"
-                    />
-                  </FormControl>
-                  <FormLabel htmlFor="is_private">
+              render={({ field, fieldState }) => (
+                <Field
+                  data-invalid={fieldState.invalid}
+                  orientation="horizontal"
+                >
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    id={field.name}
+                  />
+                  <FieldLabel htmlFor={field.name}>
                     <div>
                       Is Private
                       <p className="text-muted-foreground text-sm">
                         If enabled, this exam type will only be visible to you.
                       </p>
                     </div>
-                  </FormLabel>
-                </FormItem>
+                  </FieldLabel>
+                </Field>
               )}
             />
             <DialogFooter>

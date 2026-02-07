@@ -19,7 +19,7 @@ export const columns: ColumnDef<ExamType>[] = [
   {
     accessorKey: "description",
     header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Name" />;
+      return <DataTableColumnHeader column={column} title="Description" />;
     },
   },
   {
