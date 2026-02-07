@@ -563,7 +563,7 @@ export default function FormCard({
           </CardHeader>
           <CardContent>
             <FieldGroup className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Controller
+              {/* <Controller
                 control={form.control}
                 name="show_answers"
                 render={({ field, fieldState }) => (
@@ -592,7 +592,7 @@ export default function FormCard({
                     )}
                   </Field>
                 )}
-              />
+              /> */}
               <Controller
                 control={form.control}
                 name="is_proctored"
