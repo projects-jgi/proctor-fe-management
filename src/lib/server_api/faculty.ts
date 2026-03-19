@@ -584,3 +584,78 @@ export async function update_question({
     };
   }
 }
+
+export async function get_cohorts() {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/faculty/cohorts`,
+      isAuthorized: true,
+    });
+
+    return {
+      status: true,
+      data: response.data.data,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unable to get cohorts",
+    };
+  }
+}
+
+export async function get_cohort_exam_mappings({
+  exam_id,
+}: {
+  exam_id: number;
+}) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/faculty/exams/${exam_id}/cohorts`,
+      isAuthorized: true,
+    });
+
+    return {
+      status: true,
+      data: response.data.data,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message:
+        error.response?.data?.message || "Unable to get exam cohort mappings",
+    };
+  }
+}
+
+export async function create_cohort_exam_mappings({
+  exam_id,
+  cohort_ids,
+}: {
+  exam_id: number;
+  cohort_ids: number[];
+}) {
+  try {
+    const body = {
+      cohort_ids: cohort_ids,
+    };
+
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/faculty/exams/${exam_id}/cohorts`,
+      isAuthorized: true,
+      method: "POST",
+      body,
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message:
+        error.response?.data?.message || "Unable to get exam cohort mappings",
+    };
+  }
+}

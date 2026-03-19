@@ -24,10 +24,10 @@ export default async function Page({ params }: { params: Params }) {
       <div className="container my-8 space-y-6">
         <div className="flex justify-end">
           <div className="flex items-center gap-4">
-            <Link href={`${exam_id}/students`}>
+            <Link href={`${exam_id}/cohorts`}>
               <Button variant="outline">
                 <Users />
-                Manage Students
+                Manage Cohorts
               </Button>
             </Link>
             <PublishDialog
