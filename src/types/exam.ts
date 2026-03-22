@@ -51,3 +51,9 @@ export type ExamQuestion = {
   explanation_4?: string;
   explanation_5?: string;
 };
+
+export type Cohort = {
+  id: number;
+  cohort_name: string;
+  created_by_faculty: number;
+};

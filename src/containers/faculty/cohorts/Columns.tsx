@@ -1,0 +1,45 @@
+"use client";
+
+import { DataTableColumnHeader } from "@/components/datatable/DataTableColumnHeader";
+import { Cohort } from "@/types/exam";
+import { ColumnDef } from "@tanstack/react-table";
+import DeleteModal from "./DeleteModal";
+
+export const Columns: ColumnDef<Cohort>[] = [
+  {
+    accessorKey: "cohort_name",
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Cohort Name" />;
+    },
+  },
+  {
+    accessorKey: "faculty.name",
+    header: ({ column }) => {
+      return (
+        <DataTableColumnHeader column={column} title="Created By Faculty" />
+      );
+    },
+  },
+  {
+    accessorKey: "created_at",
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Created At" />;
+    },
+    cell: ({ getValue }) => {
+      const date = new Date(getValue() as string);
+      return date.toLocaleString();
+    },
+  },
+  {
+    accessorKey: "Actions",
+    cell: ({ row }) => {
+      const type = row.original;
+      return (
+        <div className="flex items-center gap-2">
+          {/* <UpdateType defaultValues={type} /> */}
+          <DeleteModal variant="icon" cohort_id={type.id} />
+        </div>
+      );
+    },
+  },
+];

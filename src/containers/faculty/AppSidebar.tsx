@@ -46,6 +46,12 @@ const data = [
     description: "Manage your question library",
   },
   {
+    title: "Cohorts",
+    url: "/faculty/cohorts",
+    icon: Users,
+    description: "Manage Cohorts and Students",
+  },
+  {
     title: "Exams",
     url: "/faculty/exams",
     icon: FileText,

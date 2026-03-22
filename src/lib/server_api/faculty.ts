@@ -585,10 +585,17 @@ export async function update_question({
   }
 }
 
-export async function get_cohorts() {
+export async function get_cohorts(id?: number) {
+  let url: string = String(process.env.BACKEND_HOST);
+  if (id) {
+    url += `/api/faculty/cohorts/${id}`;
+  } else {
+    url += `/api/faculty/cohorts`;
+  }
+
   try {
     const response = await Request({
-      url: process.env.BACKEND_HOST + `/api/faculty/cohorts`,
+      url,
       isAuthorized: true,
     });
 
@@ -656,6 +663,74 @@ export async function create_cohort_exam_mappings({
       status: false,
       message:
         error.response?.data?.message || "Unable to get exam cohort mappings",
+    };
+  }
+}
+
+export async function create_cohort({ cohort_name }: { cohort_name: string }) {
+  const body = {
+    cohort_name,
+  };
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + "/api/faculty/cohorts",
+      isAuthorized: true,
+      method: "POST",
+      body,
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unable to create cohort",
+    };
+  }
+}
+
+export async function delete_cohort(id: number) {
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + `/api/faculty/cohorts/${id}`,
+      isAuthorized: true,
+      method: "DELETE",
+    });
+
+    return {
+      status: true,
+      message: response.data.message || "Deleted Cohort successfully",
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unable to delete cohort",
+    };
+  }
+}
+
+export async function update_cohort({ cohort_name }: { cohort_name: string }) {
+  const body = {
+    cohort_name,
+  };
+  try {
+    const response = await Request({
+      url: process.env.BACKEND_HOST + "/api/faculty/cohorts",
+      isAuthorized: true,
+      method: "PUT",
+      body,
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unable to update cohort",
     };
   }
 }
