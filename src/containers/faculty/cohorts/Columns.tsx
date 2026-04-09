@@ -4,6 +4,9 @@ import { DataTableColumnHeader } from "@/components/datatable/DataTableColumnHea
 import { Cohort } from "@/types/exam";
 import { ColumnDef } from "@tanstack/react-table";
 import DeleteModal from "./DeleteModal";
+import { Button } from "@/components/ui/button";
+import { Edit } from "lucide-react";
+import Link from "next/link";
 
 export const Columns: ColumnDef<Cohort>[] = [
   {
@@ -36,7 +39,11 @@ export const Columns: ColumnDef<Cohort>[] = [
       const type = row.original;
       return (
         <div className="flex items-center gap-2">
-          {/* <UpdateType defaultValues={type} /> */}
+          <Button variant="ghost" className="text-primary">
+            <Link href={`/faculty/cohorts/${type.id}`}>
+              <Edit />
+            </Link>
+          </Button>
           <DeleteModal variant="icon" cohort_id={type.id} />
         </div>
       );

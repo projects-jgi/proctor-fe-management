@@ -585,13 +585,31 @@ export async function update_question({
   }
 }
 
-export async function get_cohorts(id?: number) {
+export async function get_cohorts() {
   let url: string = String(process.env.BACKEND_HOST);
-  if (id) {
-    url += `/api/faculty/cohorts/${id}`;
-  } else {
-    url += `/api/faculty/cohorts`;
+  url += `/api/faculty/cohorts`;
+
+  try {
+    const response = await Request({
+      url,
+      isAuthorized: true,
+    });
+
+    return {
+      status: true,
+      data: response.data.data,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message: error.response?.data?.message || "Unable to get cohorts",
+    };
   }
+}
+
+export async function get_cohort(id?: number) {
+  let url: string = String(process.env.BACKEND_HOST);
+  url += `/api/faculty/cohorts/${id}`;
 
   try {
     const response = await Request({
@@ -711,15 +729,21 @@ export async function delete_cohort(id: number) {
   }
 }
 
-export async function update_cohort({ cohort_name }: { cohort_name: string }) {
+export async function update_cohort({
+  cohort_id,
+  cohort_name,
+}: {
+  cohort_id: number;
+  cohort_name: string;
+}) {
   const body = {
     cohort_name,
   };
   try {
     const response = await Request({
-      url: process.env.BACKEND_HOST + "/api/faculty/cohorts",
+      url: process.env.BACKEND_HOST + `/api/faculty/cohorts/${cohort_id}`,
       isAuthorized: true,
-      method: "PUT",
+      method: "POST",
       body,
     });
 
