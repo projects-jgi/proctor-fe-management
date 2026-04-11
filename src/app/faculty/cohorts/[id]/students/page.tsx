@@ -1,21 +1,21 @@
 import HeroBanner from "@/components/HeroBanner";
-import PageContainer from "@/containers/faculty/exams/update/students/PageContainer";
+import PageContainer from "@/containers/faculty/cohorts/update/students/PageContainer";
 
 type Params = {
-  exam_id: string;
+  id: string;
 };
 
 export default async function Page({ params }: { params: Params }) {
-  const { exam_id } = await params;
+  const { id } = await params;
 
   return (
     <>
       <HeroBanner
         title="Student Exam Mapping"
-        description="Manage students for your exam"
+        description="Manage students for cohort"
       />
       <div className="container my-8 space-y-6">
-        <PageContainer exam_id={parseInt(exam_id)} />
+        <PageContainer cohort_id={parseInt(id)} />
       </div>
     </>
   );

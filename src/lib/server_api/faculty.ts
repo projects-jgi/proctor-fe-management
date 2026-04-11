@@ -758,3 +758,94 @@ export async function update_cohort({
     };
   }
 }
+
+export async function upload_cohort_students({
+  cohort_id,
+  file,
+}: {
+  cohort_id: number;
+  file: File;
+}) {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await Request({
+      url:
+        process.env.BACKEND_HOST +
+        `/api/faculty/cohorts/${cohort_id}/students/upload`,
+      isAuthorized: true,
+      method: "POST",
+      body: formData,
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message:
+        error.response?.data?.message || "Unable to upload cohort students",
+    };
+  }
+}
+
+export async function get_cohort_students({
+  cohort_id,
+}: {
+  cohort_id: number;
+}) {
+  try {
+    const response = await Request({
+      url:
+        process.env.BACKEND_HOST + `/api/faculty/cohorts/${cohort_id}/students`,
+      isAuthorized: true,
+      method: "GET",
+    });
+
+    return {
+      status: true,
+      data: response.data.data,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message:
+        error.response?.data?.message || "Unable to fetch cohort students",
+    };
+  }
+}
+
+export async function map_students_to_cohort({
+  cohort_id,
+  student_mappings,
+}: {
+  cohort_id: number;
+  student_mappings: object;
+}) {
+  const data = {
+    mappings: student_mappings,
+  };
+  try {
+    const response = await Request({
+      url:
+        process.env.BACKEND_HOST + `/api/faculty/cohorts/${cohort_id}/students`,
+      method: "POST",
+      isAuthorized: true,
+      body: data,
+    });
+
+    return {
+      status: true,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    return {
+      status: false,
+      message:
+        error.response?.data?.message || "Unable to map students to cohorts",
+    };
+  }
+}

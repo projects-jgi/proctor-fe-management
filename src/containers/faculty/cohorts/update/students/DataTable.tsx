@@ -30,7 +30,10 @@ import {
 } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import { Edit, Eye, Mail } from "lucide-react";
-import { map_students_to_exam } from "@/lib/server_api/faculty";
+import {
+  map_students_to_cohort,
+  map_students_to_exam,
+} from "@/lib/server_api/faculty";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base_columns } from "./base_columns";
@@ -41,13 +44,13 @@ import { Badge } from "@/components/ui/badge";
 interface DataTableProps<TData, TValue> {
   data: TData[];
   mapped_student_exam_data: TData[];
-  exam_id: number;
+  cohort_id: number;
 }
 
 export function DataTable<TData, TValue>({
   data,
   mapped_student_exam_data,
-  exam_id,
+  cohort_id,
 }: DataTableProps<TData, TValue>) {
   const queryClient = useQueryClient();
   const [currentColumns, setCurrentColumns] = useState<ColumnDef<TData, any>[]>(
@@ -70,7 +73,6 @@ export function DataTable<TData, TValue>({
           (student: any) => student.student,
         ),
       );
-      // setCurrentData(data);
     }
   }, [tableType]);
 
@@ -109,13 +111,13 @@ export function DataTable<TData, TValue>({
   async function handleSave() {
     toast.promise(
       () => {
-        return map_students_to_exam({
-          exam_id,
+        return map_students_to_cohort({
+          cohort_id,
           student_mappings: rowSelection,
         }).then((response) => {
           if (response.status) {
             queryClient.invalidateQueries({
-              queryKey: ["faculty", "exams", { exam_id }, "students"],
+              queryKey: ["faculty", "cohorts", cohort_id, "students"],
             });
             return response.message;
           }
@@ -124,7 +126,7 @@ export function DataTable<TData, TValue>({
         });
       },
       {
-        loading: "Mapping Students to exam...",
+        loading: "Mapping Students to cohort...",
         success: (res) => res,
         error: (err) => err.message,
       },
