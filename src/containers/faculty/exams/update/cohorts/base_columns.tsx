@@ -19,6 +19,12 @@ export const base_columns: ColumnDef<StudentUser>[] = [
     ),
   },
   {
+    accessorKey: "department.name",
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Department" />;
+    },
+  },
+  {
     accessorKey: "created_at",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Created At" />

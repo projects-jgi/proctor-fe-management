@@ -24,6 +24,12 @@ export const Columns: ColumnDef<Cohort>[] = [
     },
   },
   {
+    accessorKey: "department.name",
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Department" />;
+    },
+  },
+  {
     accessorKey: "created_at",
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Created At" />;
