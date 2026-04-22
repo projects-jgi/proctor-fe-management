@@ -15,7 +15,7 @@ import Loading from "@/components/Loading";
 import { useQuery } from "@tanstack/react-query";
 import BulkUpload from "./BulkUpload";
 import { Button } from "@/components/ui/button";
-import { Delete, Plus } from "lucide-react";
+import { Delete, Download, Plus } from "lucide-react";
 import { ExamQuestion } from "@/types/exam";
 import Link from "next/link";
 import { ExamQuestionColumns } from "./datatable/ExamQuestionColumns";
@@ -66,10 +66,10 @@ export default function QuestionsList({
         {Object.keys(rowSelection).length === 0 && (
           <>
             <BulkUpload exam_type_id={exam_type_id} />
-            <Link href="/faculty/exam-types">
+            <Link href="/assets/templates/Question Template.csv">
               <Button variant={"outline"}>
-                <Plus />
-                <span>Add Exam Type</span>
+                <Download />
+                <span>Download Template</span>
               </Button>
             </Link>
             <Button asChild>

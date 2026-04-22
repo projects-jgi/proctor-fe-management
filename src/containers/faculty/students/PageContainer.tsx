@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { columns } from "./columns";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
+import { Download, Upload } from "lucide-react";
 import UploadStudents from "./UploadStudents";
 import { get_department_students } from "@/lib/server_api/faculty";
 import { useQuery } from "@tanstack/react-query";
@@ -17,6 +17,7 @@ import Loading from "@/components/Loading";
 import { DataTable } from "@/components/datatable/DataTable";
 import { useState } from "react";
 import { DeleteStudentModal } from "./DeleteStudentModal";
+import Link from "next/link";
 
 export default function PageContainer() {
   const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
@@ -37,6 +38,13 @@ export default function PageContainer() {
     <div className="my-8 space-y-4">
       <section>
         <div className="flex justify-end gap-2 mb-4">
+          <Link href="/assets/templates/Student Template.csv">
+            <Button variant={"outline"}>
+              <Download />
+              <span>Download Template</span>
+            </Button>
+          </Link>
+
           <UploadStudents />
           {Object.keys(rowSelection).length > 0 && (
             <DeleteStudentModal
