@@ -37,6 +37,13 @@ export const ExamQuestionColumns: ColumnDef<ExamQuestion>[] = [
     header: "Question Text",
   },
   {
+    accessorKey: "is_mcq",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Is MCQ?" />
+    ),
+    cell: ({ row }) => (row.original.is_mcq ? "Yes" : "No"),
+  },
+  {
     accessorKey: "score",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Score" />

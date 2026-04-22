@@ -8,12 +8,23 @@ import AddType from "./AddType";
 import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
 import { DeleteType } from "./DeleteType";
+import Link from "next/link";
 
 export const columns: ColumnDef<ExamType>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => {
       return <DataTableColumnHeader column={column} title="Name" />;
+    },
+    cell: ({ getValue, row }) => {
+      return (
+        <Link
+          className="font-medium underline"
+          href={`/faculty/questions/${row.original.id}`}
+        >
+          {getValue<string>()}
+        </Link>
+      );
     },
   },
   {

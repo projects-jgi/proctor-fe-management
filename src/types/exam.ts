@@ -50,6 +50,7 @@ export type ExamQuestion = {
   explanation_3?: string;
   explanation_4?: string;
   explanation_5?: string;
+  is_mcq: number;
 };
 
 export type Cohort = {
